@@ -1,0 +1,25 @@
+{
+    "name": "babylonjs-dice",
+    "version": "0.1.0",
+    "description": "3D dice rolling functionality for babylon.js.",
+    "scripts": {
+        "lint": "eslint"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "eslint": "^7.22.0",
+        "eslint-import-resolver-typescript": "^2.4.0",
+        "eslint-plugin-import": "^2.22.1",
+        "eslint-plugin-prettier": "^3.3.1",
+        "prettier": "^2.2.1",
+        "typescript": "^4.2.3"
+    },
+    "bugs": {
+        "url": "https://github.com/Kruptein/babylonjs-dice/issues"
+    },
+    "homepage": "https://github.com/Kruptein/babylonjs-dice#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Kruptein/babylonjs-dice.git"
+    }
+}
