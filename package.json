@@ -20,6 +20,9 @@
         "prettier": "^2.2.1",
         "typescript": "^4.2.3"
     },
+    "files": [
+        "dist/**"
+    ],
     "bugs": {
         "url": "https://github.com/Kruptein/babylonjs-dice/issues"
     },
