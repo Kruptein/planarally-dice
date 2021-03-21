@@ -2,11 +2,17 @@
     "name": "babylonjs-dice",
     "version": "0.1.0",
     "description": "3D dice rolling functionality for babylon.js.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "lint": "eslint"
     },
-    "dependencies": {},
+    "dependencies": {
+        "ammo.js": "github:kripken/ammo.js"
+    },
     "devDependencies": {
+        "@babylonjs/core": "^4.2.0",
+        "@babylonjs/inspector": "^4.2.0",
         "eslint": "^7.22.0",
         "eslint-import-resolver-typescript": "^2.4.0",
         "eslint-plugin-import": "^2.22.1",
