@@ -69,7 +69,6 @@ function getFacetsPerFaceForDie(die: Dice): number {
 
 export function getValueFromFace(die: Dice, face: number): number {
     const value = Math.floor(face / getFacetsPerFaceForDie(die));
-    console.log(value);
     return FACE_VALUE_MAPPING[die][value];
 }
 

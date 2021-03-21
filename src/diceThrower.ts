@@ -45,7 +45,6 @@ export class DiceThrower {
 
         const asyncLoad = await SceneLoader.ImportMeshAsync("", meshUrl);
         for (const mesh of asyncLoad.meshes) {
-            console.log(mesh.name);
             mesh.setEnabled(false);
             mesh.isVisible = true;
             this.meshMap.set(stringToDice(mesh.name), mesh as Mesh);
@@ -95,7 +94,6 @@ export class DiceThrower {
 
         const root = new Mesh("", this.scene);
 
-        console.log(options.die);
         const mesh = this.meshMap.get(options.die)!.clone();
         mesh.setEnabled(true);
         // mesh.isVisible = false;
