@@ -1,5 +1,5 @@
 {
-    "name": "babylonjs-dice",
+    "name": "@planarally/dice",
     "version": "0.1.0",
     "description": "3D dice rolling functionality for babylon.js.",
     "main": "dist/index.js",
@@ -30,5 +30,13 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Kruptein/babylonjs-dice.git"
-    }
+    },
+    "keywords": [
+        "PlanarAlly",
+        "dice",
+        "babylonjs",
+        "ammojs",
+        "3D",
+        "DnD"
+    ]
 }
