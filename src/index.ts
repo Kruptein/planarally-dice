@@ -1,3 +1,3 @@
 export { DiceThrower } from "./diceThrower";
-export { optionsFromString } from "./parser";
+export * from "./parser";
 export { Dice, DieOptions } from "./types";

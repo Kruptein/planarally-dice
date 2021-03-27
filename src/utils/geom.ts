@@ -1,10 +1,7 @@
 import { Mesh, MeshBuilder, Vector3 } from "@babylonjs/core";
 
-import { Dice } from "./types";
-
-function toRadians(degrees: number): number {
-    return (degrees * Math.PI) / 180;
-}
+import { Dice } from "../types";
+import { toRadians } from "./math";
 
 export function getColliderFromDie(die: Dice): Mesh {
     let collider;

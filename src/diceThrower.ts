@@ -2,7 +2,7 @@ import { AmmoJSPlugin, Engine, Mesh, PhysicsImpostor, Ray, Scene, SceneLoader, V
 import Ammo from "ammo.js";
 
 import { Dice, DieOptions } from "./types";
-import { getColliderFromDie, getValueFromFace, stringToDice } from "./utils";
+import { getColliderFromDie, getValueFromFace, stringToDice } from "./utils/geom";
 
 export class DiceThrower {
     private loaded = false;
@@ -83,7 +83,6 @@ export class DiceThrower {
 
     private createDie(options: DieOptions): Mesh {
         const collider = getColliderFromDie(options.die);
-        // d20C.isVisible = false;
         collider.isVisible = false;
         const impostor = new PhysicsImpostor(collider, PhysicsImpostor.ConvexHullImpostor, {
             mass: 0,
@@ -96,7 +95,6 @@ export class DiceThrower {
 
         const mesh = this.meshMap.get(options.die)!.clone();
         mesh.setEnabled(true);
-        // mesh.isVisible = false;
         root.addChild(mesh);
         root.addChild(collider);
 
