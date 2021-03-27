@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "target": "es6",
+        "target": "es2018",
         "module": "esnext",
         "strict": true,
         "jsx": "preserve",
@@ -12,7 +12,8 @@
         "allowSyntheticDefaultImports": true,
         "sourceMap": false,
         "baseUrl": ".",
-        "outDir": "dist"
+        "outDir": "dist",
+        "lib": ["DOM", "ES2018", "DOM.Iterable", "ScriptHost", "ES2020.string"]
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]
