@@ -9,7 +9,11 @@ _For a rough exampe check the examples folder._
 ### Setup
 
 1. Instantiate a `DiceThrower` class with either a canvas element or your own babylonjs scene.
-2. Call the async `load` method on the instance to load ammojs and the dice meshes.
+2. Call the async `load` method on the instance to load ammojs and the dice meshes\*.
+
+\*At this moment you need to manually specify your meshes e.g.
+`await diceThrower.load("http://localhost:9998/some_meshes.babylon");`
+In the future a default set is expected to be available.
 
 ### Throwing dice
 
@@ -20,23 +24,29 @@ The method will only return if all dice have stabilized, which currently is dete
 
 Examples
 
-```
-const results = await diceThrower.throwDice([{ die: Dice.D20 }, { die: Dice.D6, position: new Vector3(2, 2, 2) } ]);
+```typescript
+const results = await diceThrower.throwDice([{ die: Dice.D20 }, { die: Dice.D6, position: new Vector3(2, 2, 2) }]);
 ```
 
 ### String format
 
-An alternative way is to parse a string representation.
+An alternative and more advanced way is to parse a string representation.
+This is done by instantiating a parser specifically for your system.
+Currently only a DndParser is available.
 
+```typescript
+const parser = new DndParser(diceThrower);
+const results = await parser.fromString("3d6 + 1d4 - 3 1d20+2-3d4");
+results.length; // 2
+results[0].total; // 7
+results[0].details; // [{ input: '3d6', output: [1,5,3], type: 'dice' }, {input: '+', type: 'operator'}, ...]
 ```
-const results = await diceThrower.throwDice(optionsFromString("3d6 + 2d4"));
-```
 
-This format is however subject to change very soon as it is very inflexible.
+What happens here is that a single string is taken as input, split into separate groups and then parsed, thrown and interpreted.
+For each group a total and a detailled breakdown is available.
 
-The goal is to create a generic parser class with implementations for various systems out there in such a way that:
-
-input -> parse -> throw dice -> interpret results -> output
+The same die options can be provided in this format by optionally specifying a list after your string that follows order of your dice.
+E.g. `("2d6 1d4", [{position: new Vector3(1, 1, 2)}, undefined, {position: new Vector3(0, 1, 2)}])` sets the position for the first d6 and for the d4.
 
 ## Available dice
 
