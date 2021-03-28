@@ -95,7 +95,7 @@ export function stringToDice(dice: string): Dice {
 }
 
 const FACE_VALUE_MAPPING: Record<Dice, number[]> = {
-    [Dice.D4]: [1, 2, 3, 4],
+    [Dice.D4]: [4, 3, 1, 2],
     [Dice.D6]: [6, 2, 1, 5, 3, 4, 6, 2, 1, 5, 3, 4],
     [Dice.D8]: [1, 7, 8, 2, 3, 5, 6, 4],
     [Dice.D10]: [5, 9, 1, 7, 3, 4, 10, 8, 2, 6, 5, 9, 1, 7, 3, 4, 10, 8, 2, 6],
