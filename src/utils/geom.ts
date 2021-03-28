@@ -56,17 +56,8 @@ export function getColliderFromDie(die: Dice): Mesh {
     return collider;
 }
 
-function getFacetsPerFaceForDie(die: Dice): number {
-    if (die === Dice.D10) {
-        return 2;
-    } else {
-        return 1;
-    }
-}
-
 export function getValueFromFace(die: Dice, face: number): number {
-    const value = Math.floor(face / getFacetsPerFaceForDie(die));
-    return FACE_VALUE_MAPPING[die][value];
+    return FACE_VALUE_MAPPING[die][face];
 }
 
 export function stringToDice(dice: string): Dice {
@@ -95,7 +86,7 @@ export function stringToDice(dice: string): Dice {
 }
 
 const FACE_VALUE_MAPPING: Record<Dice, number[]> = {
-    [Dice.D4]: [1, 2, 3, 4],
+    [Dice.D4]: [4, 3, 1, 2],
     [Dice.D6]: [6, 2, 1, 5, 3, 4, 6, 2, 1, 5, 3, 4],
     [Dice.D8]: [1, 7, 8, 2, 3, 5, 6, 4],
     [Dice.D10]: [5, 9, 1, 7, 3, 4, 10, 8, 2, 6, 5, 9, 1, 7, 3, 4, 10, 8, 2, 6],
@@ -138,7 +129,7 @@ const FACE_VALUE_MAPPING: Record<Dice, number[]> = {
         10,
     ],
     [Dice.D20]: [6, 9, 16, 3, 19, 11, 14, 8, 17, 1, 4, 20, 10, 7, 13, 18, 2, 12, 15, 5],
-    [Dice.D100]: [30, 50, 90, 70, 10, 100, 80, 20, 60, 40],
+    [Dice.D100]: [50, 90, 10, 70, 30, 40, 100, 80, 20, 60, 50, 90, 10, 70, 30, 40, 100, 80, 20, 60],
 };
 
 const d10Custom = {

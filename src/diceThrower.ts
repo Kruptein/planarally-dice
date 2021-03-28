@@ -143,7 +143,9 @@ export class DiceThrower {
 
         if (isDone) {
             impostor!.unregisterAfterPhysicsStep(dieInfo.registerFunc);
-            const pickResult = this.scene.pickWithRay(new Ray(mesh.position, new Vector3(0, 1, 0), 100))!;
+            let vector = new Vector3(0, 1, 0);
+            if (dieInfo.die === Dice.D4) vector = new Vector3(0, -1, 0);
+            const pickResult = this.scene.pickWithRay(new Ray(mesh.position, vector, 100))!;
             if (pickResult.hit) {
                 dieInfo.resolved = true;
                 dieInfo.resolve(getValueFromFace(dieInfo.die, pickResult.faceId));
