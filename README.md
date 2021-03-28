@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/%40planarally%2Fdice.svg)](https://www.npmjs.com/package/@planarally/dice)
+
 # A babylon.js dice roller
 
 This repository is home to 3d dice roller functionality for the babylon.js framework using ammo.js as physics simulation.
