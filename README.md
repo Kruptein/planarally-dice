@@ -8,6 +8,10 @@ This repository is home to 3d dice roller functionality for the babylon.js frame
 
 _For a rough exampe check the examples folder._
 
+### Installation
+
+`npm i @planarally/dice`
+
 ### Setup
 
 1. Instantiate a `DiceThrower` class with either a canvas element or your own babylonjs scene.
