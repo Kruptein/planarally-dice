@@ -82,7 +82,7 @@ export class DiceThrower {
     }
 
     private createDie(options: DieOptions): Mesh {
-        const collider = getColliderFromDie(options.die);
+        const collider = getColliderFromDie(options.die, options.size);
         collider.isVisible = false;
         const impostor = new PhysicsImpostor(collider, PhysicsImpostor.ConvexHullImpostor, {
             mass: 0,
@@ -108,7 +108,7 @@ export class DiceThrower {
 
         root.position = options?.position ?? new Vector3(0, 2, 0);
         root.physicsImpostor.setLinearVelocity(options?.linear ?? defaultLinearVelocity);
-        root.physicsImpostor.setAngularVelocity(defaultAngularVelocity);
+        root.physicsImpostor.setAngularVelocity(options?.angular ?? defaultAngularVelocity);
 
         return root;
     }
