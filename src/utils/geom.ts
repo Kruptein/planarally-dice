@@ -3,26 +3,26 @@ import { Mesh, MeshBuilder, Vector3 } from "@babylonjs/core";
 import { Dice } from "../types";
 import { toRadians } from "./math";
 
-export function getColliderFromDie(die: Dice): Mesh {
+export function getColliderFromDie(die: Dice, size?: number): Mesh {
     let collider;
     switch (die) {
         case Dice.D4: {
             collider = MeshBuilder.CreatePolyhedron("d4", {
                 type: 0,
-                size: 0.6,
+                size: size ?? 0.6,
             });
             collider.rotate(new Vector3(1, 0, 0), toRadians(20));
             collider.rotate(new Vector3(0, 0, 1), toRadians(90));
             break;
         }
         case Dice.D6: {
-            collider = MeshBuilder.CreateBox("d6", { size: 1.4 });
+            collider = MeshBuilder.CreateBox("d6", { size: size ?? 1.4 });
             break;
         }
         case Dice.D8: {
             collider = MeshBuilder.CreatePolyhedron("d8", {
                 type: 1,
-                size: 0.8,
+                size: size ?? 0.8,
             });
             collider.rotate(new Vector3(0, 1, 0), toRadians(45));
             break;
@@ -31,6 +31,7 @@ export function getColliderFromDie(die: Dice): Mesh {
         case Dice.D100: {
             collider = MeshBuilder.CreatePolyhedron("d10", {
                 custom: d10Custom,
+                size,
             });
             collider.rotate(new Vector3(0, 1, 0), toRadians(36));
             break;
@@ -38,7 +39,7 @@ export function getColliderFromDie(die: Dice): Mesh {
         case Dice.D12: {
             collider = MeshBuilder.CreatePolyhedron("d12", {
                 type: 2,
-                size: 1.1,
+                size: size ?? 1.1,
             });
             collider.rotate(new Vector3(1, 0, 0), toRadians(10));
             collider.rotate(new Vector3(0, 0, 1), toRadians(30));
@@ -47,6 +48,7 @@ export function getColliderFromDie(die: Dice): Mesh {
         default: {
             collider = MeshBuilder.CreatePolyhedron("d20", {
                 type: 3,
+                size,
             });
             collider.rotate(new Vector3(1, 0, 0), toRadians(-25));
             collider.rotate(new Vector3(0, 1, 0), toRadians(20));
