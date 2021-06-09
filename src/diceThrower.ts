@@ -1,4 +1,15 @@
-import { AmmoJSPlugin, Engine, Mesh, PhysicsImpostor, Ray, Scene, SceneLoader, Vector3 } from "@babylonjs/core";
+import {
+    AmmoJSPlugin,
+    Color3,
+    Engine,
+    Mesh,
+    PBRMaterial,
+    PhysicsImpostor,
+    Ray,
+    Scene,
+    SceneLoader,
+    Vector3,
+} from "@babylonjs/core";
 import Ammo from "ammo.js";
 
 import { Dice, DieOptions } from "./types";
@@ -99,7 +110,7 @@ export class DiceThrower {
         root.addChild(collider);
 
         // custom colours
-        // (mesh.material as PBRMaterial).albedoColor = Color3.FromHexString("#ff0000");
+        if (options.color) (mesh.material as PBRMaterial).albedoColor = Color3.FromHexString(options.color);
 
         const defaultLinearVelocity = new Vector3(Math.random() * 10, 0, Math.random() * 10);
         const defaultAngularVelocity = new Vector3(Math.random() * 4, 0, Math.random() * 4);

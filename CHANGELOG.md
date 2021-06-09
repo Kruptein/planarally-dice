@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+-   DieOptions.color is a new optional parameter (string) that can be passed to set the albedoColor of the mesh.
+
 ## [0.1.2] - 2021-06-09
 
 ### Fixed
