@@ -17,4 +17,5 @@ export interface DieOptions {
     angular?: Vector3;
     size?: number;
     impostor?: PhysicsImpostorParameters;
+    color?: string;
 }
