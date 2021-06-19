@@ -12,6 +12,12 @@ _For a rough exampe check the examples folder._
 
 `npm i @planarally/dice`
 
+This package uses Ammo.js for the physics,
+to instantiate the physics you can pass your own instance of Ammo or
+you can rely on the build-in Ammo load mechanics in which case you **must** add the Ammo.js dependency yourself.
+
+`npm i github:kripken/ammo.js`
+
 ### Setup
 
 1. Instantiate a `DiceThrower` class with either a canvas element or your own babylonjs scene.
@@ -19,7 +25,9 @@ _For a rough exampe check the examples folder._
 
 \*At this moment you need to manually specify your meshes e.g.
 `await diceThrower.load("http://localhost:9998/some_meshes.babylon");`
-In the future a default set is expected to be available.
+
+A default set of dice meshes and uvs can be found in the examples folder,
+in the future the aim is to include them in the core code as a default set without having to manually serve/load them.
 
 ### Throwing dice
 

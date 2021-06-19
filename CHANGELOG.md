@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+-   DiceThrower.load now takes an optional `ammo` parameter to pass an ammo instance
+-   ammo.js dependency has been moved to a peer dependency
+
+## [0.2.0] - 2021-06-06
+
 ### Added
 
 -   DieOptions.color is a new optional parameter (string) that can be passed to set the albedoColor of the mesh.

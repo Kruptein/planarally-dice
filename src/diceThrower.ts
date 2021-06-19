@@ -48,10 +48,10 @@ export class DiceThrower {
      *
      * For now you require to always pass the URL to a .babylon file.
      */
-    async load(meshUrl: string): Promise<void> {
-        await Ammo();
+    async load(meshUrl: string, ammo?: any): Promise<void> {
+        ammo ??= await Ammo();
         const gravity = new Vector3(0, -10, 0);
-        const physicsPlugin = new AmmoJSPlugin();
+        const physicsPlugin = new AmmoJSPlugin(undefined, ammo);
         this.scene.enablePhysics(gravity, physicsPlugin);
 
         const asyncLoad = await SceneLoader.ImportMeshAsync("", meshUrl);
