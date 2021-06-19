@@ -1,5 +1,5 @@
 import { ArcRotateCamera, HemisphericLight, MeshBuilder, PhysicsImpostor, Vector3 } from "@babylonjs/core";
-import { DiceThrower } from "babylonjs-dice";
+import { DiceThrower } from "@planarally/dice";
 
 export async function loadDiceEnv(): Promise<DiceThrower> {
     const canvas = document.getElementById("babylon") as HTMLCanvasElement;
