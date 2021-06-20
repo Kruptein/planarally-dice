@@ -10,9 +10,9 @@ import {
     SceneLoader,
     Vector3,
 } from "@babylonjs/core";
-import Ammo from "ammo.js";
 
 import { Dice, DieOptions } from "./types";
+import { loadAmmo } from "./utils/ammo";
 import { getColliderFromDie, getValueFromFace, stringToDice } from "./utils/geom";
 
 export class DiceThrower {
@@ -49,7 +49,8 @@ export class DiceThrower {
      * For now you require to always pass the URL to a .babylon file.
      */
     async load(meshUrl: string, ammo?: any): Promise<void> {
-        ammo ??= await Ammo();
+        console.log(0);
+        ammo ??= await loadAmmo();
         const gravity = new Vector3(0, -10, 0);
         const physicsPlugin = new AmmoJSPlugin(undefined, ammo);
         this.scene.enablePhysics(gravity, physicsPlugin);

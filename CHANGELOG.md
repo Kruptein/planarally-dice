@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 -   DiceThrower.load now takes an optional `ammo` parameter to pass an ammo instance
--   ammo.js dependency has been moved to a peer dependency
+-   ammo.js dependency has been moved to a peer dependency and will only be dynamically imported if not provided otherwise
 
 ## [0.2.0] - 2021-06-06
 
