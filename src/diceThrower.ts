@@ -6,11 +6,16 @@ import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { AmmoJSPlugin } from "@babylonjs/core/Physics/Plugins/ammoJSPlugin";
-import "@babylonjs/core/Physics/physicsEngineComponent";
 import { Scene } from "@babylonjs/core/scene";
 import { Dice, DieOptions } from "./types";
 import { loadAmmo } from "./utils/ammo";
 import { getColliderFromDie, getValueFromFace, stringToDice } from "./utils/geom";
+
+// Load side-effects that are not by default loaded with the tree-shaking above
+import "@babylonjs/core/Loading";
+import "@babylonjs/core/Materials/standardMaterial";
+import "@babylonjs/core/Materials/PBR/pbrMaterial";
+import "@babylonjs/core/Physics/physicsEngineComponent";
 
 export class DiceThrower {
     private loaded = false;
@@ -46,7 +51,6 @@ export class DiceThrower {
      * For now you require to always pass the URL to a .babylon file.
      */
     async load(meshUrl: string, ammo?: any): Promise<void> {
-        console.log(0);
         ammo ??= await loadAmmo();
         const gravity = new Vector3(0, -10, 0);
         const physicsPlugin = new AmmoJSPlugin(undefined, ammo);

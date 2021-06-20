@@ -1,6 +1,8 @@
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { BoxBuilder } from "@babylonjs/core/Meshes/Builders/boxBuilder";
+import { PolyhedronBuilder } from "@babylonjs/core/Meshes/Builders/polyhedronBuilder";
+
 import { Dice } from "../types";
 import { toRadians } from "./math";
 
@@ -8,7 +10,7 @@ export function getColliderFromDie(die: Dice, size?: number): Mesh {
     let collider;
     switch (die) {
         case Dice.D4: {
-            collider = MeshBuilder.CreatePolyhedron("d4", {
+            collider = PolyhedronBuilder.CreatePolyhedron("d4", {
                 type: 0,
                 size: size ?? 0.6,
             });
@@ -17,11 +19,11 @@ export function getColliderFromDie(die: Dice, size?: number): Mesh {
             break;
         }
         case Dice.D6: {
-            collider = MeshBuilder.CreateBox("d6", { size: size ?? 1.4 });
+            collider = BoxBuilder.CreateBox("d6", { size: size ?? 1.4 });
             break;
         }
         case Dice.D8: {
-            collider = MeshBuilder.CreatePolyhedron("d8", {
+            collider = PolyhedronBuilder.CreatePolyhedron("d8", {
                 type: 1,
                 size: size ?? 0.8,
             });
@@ -30,7 +32,7 @@ export function getColliderFromDie(die: Dice, size?: number): Mesh {
         }
         case Dice.D10:
         case Dice.D100: {
-            collider = MeshBuilder.CreatePolyhedron("d10", {
+            collider = PolyhedronBuilder.CreatePolyhedron("d10", {
                 custom: d10Custom,
                 size,
             });
@@ -38,7 +40,7 @@ export function getColliderFromDie(die: Dice, size?: number): Mesh {
             break;
         }
         case Dice.D12: {
-            collider = MeshBuilder.CreatePolyhedron("d12", {
+            collider = PolyhedronBuilder.CreatePolyhedron("d12", {
                 type: 2,
                 size: size ?? 1.1,
             });
@@ -47,7 +49,7 @@ export function getColliderFromDie(die: Dice, size?: number): Mesh {
             break;
         }
         default: {
-            collider = MeshBuilder.CreatePolyhedron("d20", {
+            collider = PolyhedronBuilder.CreatePolyhedron("d20", {
                 type: 3,
                 size,
             });
