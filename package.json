@@ -1,6 +1,6 @@
 {
     "name": "@planarally/dice",
-    "version": "0.3.0-alpha.4",
+    "version": "0.3.0-alpha.5",
     "description": "3D dice rolling functionality for babylon.js.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",

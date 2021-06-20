@@ -6,6 +6,7 @@ import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { AmmoJSPlugin } from "@babylonjs/core/Physics/Plugins/ammoJSPlugin";
+import "@babylonjs/core/Physics/physicsEngineComponent";
 import { Scene } from "@babylonjs/core/scene";
 import { Dice, DieOptions } from "./types";
 import { loadAmmo } from "./utils/ammo";

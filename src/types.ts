@@ -1,4 +1,5 @@
-import { PhysicsImpostorParameters, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { PhysicsImpostorParameters } from "@babylonjs/core/Physics/physicsImpostor";
 
 export enum Dice {
     D4,

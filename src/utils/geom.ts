@@ -1,5 +1,6 @@
-import { Mesh, MeshBuilder, Vector3 } from "@babylonjs/core";
-
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { Dice } from "../types";
 import { toRadians } from "./math";
 
