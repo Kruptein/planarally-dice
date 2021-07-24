@@ -1,6 +1,6 @@
 {
     "name": "@planarally/dice",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "3D dice rolling functionality for babylon.js.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
         "build": "rimraf dist/ && tsc",
         "lint": "eslint"
     },
-    "dependencies": {
+    "peerDependencies": {
         "ammo.js": "github:kripken/ammo.js"
     },
     "devDependencies": {

@@ -6,11 +6,19 @@ This repository is home to 3d dice roller functionality for the babylon.js frame
 
 ## Usage
 
-_For a rough exampe check the examples folder._
+_For a rough example check the examples folder._
 
 ### Installation
 
 `npm i @planarally/dice`
+
+This package uses Ammo.js for the physics, it's however not a direct dependency because ammojs does not provide clean npm version packages.
+
+Make sure you install Ammo.js on your own and pass the Ammo instance to the load function.
+
+To install Ammo.js straight from github you can do:
+
+`npm i github:kripken/ammo.js`
 
 ### Setup
 
@@ -19,7 +27,9 @@ _For a rough exampe check the examples folder._
 
 \*At this moment you need to manually specify your meshes e.g.
 `await diceThrower.load("http://localhost:9998/some_meshes.babylon");`
-In the future a default set is expected to be available.
+
+A default set of dice meshes and uvs can be found in the examples folder,
+in the future the aim is to include them in the core code as a default set without having to manually serve/load them.
 
 ### Throwing dice
 
