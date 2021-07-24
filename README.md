@@ -6,15 +6,17 @@ This repository is home to 3d dice roller functionality for the babylon.js frame
 
 ## Usage
 
-_For a rough exampe check the examples folder._
+_For a rough example check the examples folder._
 
 ### Installation
 
 `npm i @planarally/dice`
 
-This package uses Ammo.js for the physics,
-to instantiate the physics you can pass your own instance of Ammo or
-you can rely on the build-in Ammo load mechanics in which case you **must** add the Ammo.js dependency yourself.
+This package uses Ammo.js for the physics, it's however not a direct dependency because ammojs does not provide clean npm version packages.
+
+Make sure you install Ammo.js on your own and pass the Ammo instance to the load function.
+
+To install Ammo.js straight from github you can do:
 
 `npm i github:kripken/ammo.js`
 

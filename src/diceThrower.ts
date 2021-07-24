@@ -8,7 +8,6 @@ import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { AmmoJSPlugin } from "@babylonjs/core/Physics/Plugins/ammoJSPlugin";
 import { Scene } from "@babylonjs/core/scene";
 import { Dice, DieOptions } from "./types";
-import { loadAmmo } from "./utils/ammo";
 import { getColliderFromDie, getValueFromFace, stringToDice } from "./utils/geom";
 
 // Load side-effects that are not by default loaded with the tree-shaking above
@@ -50,8 +49,7 @@ export class DiceThrower {
      *
      * For now you require to always pass the URL to a .babylon file.
      */
-    async load(meshUrl: string, ammo?: any): Promise<void> {
-        ammo ??= await loadAmmo();
+    async load(meshUrl: string, ammo: any): Promise<void> {
         const gravity = new Vector3(0, -10, 0);
         const physicsPlugin = new AmmoJSPlugin(undefined, ammo);
         this.scene.enablePhysics(gravity, physicsPlugin);
