@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.3.0] - 2021-07-24
+
 ### Changed
 
--   DiceThrower.load now takes an optional `ammo` parameter to pass an ammo instance
--   ammo.js dependency has been moved to a peer dependency and will only be dynamically imported if not provided otherwise
+-   DiceThrower.load now takes an `ammo` parameter to pass an ammo instance
+-   ammo.js dependency has been moved to a peer dependency and has to be installed separately
 -   Improved tree-shakeability of babylonjs
 
 ## [0.2.0] - 2021-06-06
