@@ -4,7 +4,7 @@ import { DieOptions } from "../types";
 type SimpleOptions = Omit<DieOptions, "die">;
 
 export abstract class Parser<T> {
-    constructor(private diceThrower?: DiceThrower) {}
+    constructor(private diceThrower: DiceThrower) {}
 
     protected abstract inputToOptions(input: string): DieOptions[];
     protected abstract resultsToOutput(results: number[]): T;
@@ -20,7 +20,7 @@ export abstract class Parser<T> {
     }
 
     async fromOptions(options: DieOptions[]): Promise<T> {
-        const results = (await this.diceThrower?.throwDice(options)) ?? [2, 3, 4, 5];
+        const results = await this.diceThrower.throwDice(options);
         return this.resultsToOutput(results);
     }
 }
