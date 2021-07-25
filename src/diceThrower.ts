@@ -39,7 +39,7 @@ export class DiceThrower {
     constructor(options: {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
-        tresholds: { linear: number; angular: number };
+        tresholds?: { linear: number; angular: number };
     }) {
         if (options.scene) {
             this.scene = options.scene;
