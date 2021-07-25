@@ -12,9 +12,7 @@ export abstract class Parser<T> {
     async fromString(input: string, options?: SimpleOptions | undefined | (SimpleOptions | undefined)[]): Promise<T> {
         const converted = this.inputToOptions(input);
         for (const [i, c] of converted.entries()) {
-            if (options !== undefined) {
-                converted[i] = { ...c, ...(Array.isArray(options) ? options[i] : options) };
-            }
+            converted[i] = { ...c, ...(Array.isArray(options) ? options[i] : options) };
         }
         return this.fromOptions(converted);
     }
