@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+-   Parser.fromString now also accepts a single Options object if the same options apply to all dice
+
 ## [0.3.0] - 2021-07-24
 
 ### Changed

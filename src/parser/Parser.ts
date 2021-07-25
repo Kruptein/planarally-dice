@@ -1,17 +1,19 @@
 import { DiceThrower } from "../diceThrower";
 import { DieOptions } from "../types";
 
+type SimpleOptions = Omit<DieOptions, "die">;
+
 export abstract class Parser<T> {
     constructor(private diceThrower?: DiceThrower) {}
 
     protected abstract inputToOptions(input: string): DieOptions[];
     protected abstract resultsToOutput(results: number[]): T;
 
-    async fromString(input: string, options?: (Omit<DieOptions, "die"> | undefined)[]): Promise<T> {
+    async fromString(input: string, options?: SimpleOptions | undefined | (SimpleOptions | undefined)[]): Promise<T> {
         const converted = this.inputToOptions(input);
-        for (const [i, option] of (options ?? []).entries()) {
-            if (option) {
-                converted[i] = { ...converted[i], ...option };
+        for (const [i, c] of converted.entries()) {
+            if (options !== undefined) {
+                converted[i] = { ...c, ...(Array.isArray(options) ? options[i] : options) };
             }
         }
         return this.fromOptions(converted);
