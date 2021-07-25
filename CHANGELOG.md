@@ -7,10 +7,12 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 -   `Parser.fromString` now also accepts a single Options object if the same options apply to all dice
+-   `tresholds` option to DiceThrower constructor to override the default stop tresholds
 
 ### Changed
 
 -   Removed option to pass `undefined` to `Parser` for diceThrower instance
+-   Angular stop treshold lowered from 0.1 to 0.075
 
 ## [0.3.0] - 2021-07-24
 

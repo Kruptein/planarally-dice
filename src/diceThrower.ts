@@ -20,6 +20,11 @@ export class DiceThrower {
     private loaded = false;
     scene: Scene;
 
+    tresholds = {
+        linear: 0.1,
+        angular: 0.075,
+    };
+
     private meshMap: Map<Dice, Mesh> = new Map();
 
     private dice: {
@@ -31,7 +36,11 @@ export class DiceThrower {
         resolved: boolean;
     }[] = [];
 
-    constructor(options: { scene?: Scene; canvas?: HTMLCanvasElement }) {
+    constructor(options: {
+        scene?: Scene;
+        canvas?: HTMLCanvasElement;
+        tresholds: { linear: number; angular: number };
+    }) {
         if (options.scene) {
             this.scene = options.scene;
         } else if (options.canvas) {
@@ -39,6 +48,9 @@ export class DiceThrower {
             this.scene = new Scene(engine);
         } else {
             throw new Error("Expected either a scene or a canvas element");
+        }
+        if (options.tresholds) {
+            this.tresholds = options.tresholds;
         }
     }
 
@@ -140,17 +152,16 @@ export class DiceThrower {
         const mesh = dieInfo.mesh;
         const impostor = mesh.physicsImpostor!;
 
-        const threshold = 0.1;
         const angularVelocity = impostor!.getAngularVelocity()!;
         const velocity = impostor!.getLinearVelocity()!;
 
         const isDone =
-            Math.abs(angularVelocity.x) < threshold &&
-            Math.abs(angularVelocity.y) < threshold &&
-            Math.abs(angularVelocity.z) < threshold &&
-            Math.abs(velocity.x) < threshold &&
-            Math.abs(velocity.y) < threshold &&
-            Math.abs(velocity.z) < threshold;
+            Math.abs(angularVelocity.x) < this.tresholds.angular &&
+            Math.abs(angularVelocity.y) < this.tresholds.angular &&
+            Math.abs(angularVelocity.z) < this.tresholds.angular &&
+            Math.abs(velocity.x) < this.tresholds.linear &&
+            Math.abs(velocity.y) < this.tresholds.linear &&
+            Math.abs(velocity.z) < this.tresholds.linear;
 
         if (isDone) {
             impostor!.unregisterAfterPhysicsStep(dieInfo.registerFunc);
