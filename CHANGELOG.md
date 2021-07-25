@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+-   `Parser.fromString` now also accepts a single Options object if the same options apply to all dice
+
+### Changed
+
+-   Removed option to pass `undefined` to `Parser` for diceThrower instance
+
 ## [0.3.0] - 2021-07-24
 
 ### Changed
