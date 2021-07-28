@@ -136,7 +136,7 @@ export class DiceThrower {
         return root;
     }
 
-    private reset(): void {
+    reset(): void {
         for (const dieInfo of this.dice) {
             if (!dieInfo.resolved) {
                 dieInfo.mesh.physicsImpostor!.unregisterAfterPhysicsStep(dieInfo.registerFunc);

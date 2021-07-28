@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 -   Removed option to pass `undefined` to `Parser` for diceThrower instance
 -   Angular stop treshold lowered from 0.1 to 0.075
+-   `DiceThrower.reset` made public
 
 ## [0.3.0] - 2021-07-24
 
