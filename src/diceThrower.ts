@@ -25,6 +25,8 @@ export class DiceThrower {
         angular: 0.075,
     };
 
+    freezeOnDecision = true;
+
     private meshMap: Map<Dice, Mesh> = new Map();
 
     private dice: {
@@ -40,6 +42,7 @@ export class DiceThrower {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
+        freezeOnDecision?: boolean;
     }) {
         if (options.scene) {
             this.scene = options.scene;
@@ -51,6 +54,9 @@ export class DiceThrower {
         }
         if (options.tresholds) {
             this.tresholds = options.tresholds;
+        }
+        if (options.freezeOnDecision) {
+            this.freezeOnDecision = options.freezeOnDecision;
         }
     }
 
@@ -172,7 +178,14 @@ export class DiceThrower {
             Math.abs(velocity.z) < this.tresholds.linear;
 
         if (isDone) {
-            impostor!.unregisterAfterPhysicsStep(dieInfo.registerFunc);
+            impostor.unregisterAfterPhysicsStep(dieInfo.registerFunc);
+
+            if (this.freezeOnDecision) {
+                // Once a solution has been decided, freeze the die in place to prevent mishaps
+                impostor.setLinearVelocity(Vector3.Zero());
+                impostor.setAngularVelocity(Vector3.Zero());
+            }
+
             let vector = new Vector3(0, 1, 0);
             if (dieInfo.die === Dice.D4) vector = new Vector3(0, -1, 0);
             const pickResult = this.scene.pickWithRay(new Ray(mesh.position, vector, 100))!;

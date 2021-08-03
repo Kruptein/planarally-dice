@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 -   `Parser.fromString` now also accepts a single Options object if the same options apply to all dice
 -   `tresholds` option to DiceThrower constructor to override the default stop tresholds
 -   Optional callback parameter to throwDice and parser functions to modify the die mesh
+-   `freezeOnDecision` option to freeze the dice when the stop condition has been reached
 
 ### Changed
 
