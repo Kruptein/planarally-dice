@@ -79,7 +79,13 @@ export class DiceThrower {
         this.scene.getEngine().runRenderLoop(() => this.scene.render());
     }
 
-    async throwDice(dice: DieOptions[]): Promise<number[]> {
+    /**
+     * This function throws the provided dice, returning in the same order the result they landed on.
+     * An optional callback function can be provided to interact with the created Meshes just after their creation,
+     * this will be called for each individual die thrown with the die type and
+     * the root mesh containing both the Die mesh and the collider as children
+     */
+    async throwDice(dice: DieOptions[], cb?: (die: Dice, mesh: Mesh) => void): Promise<number[]> {
         if (!this.loaded) {
             throw new Error("DiceThrower has not been properly loaded. first call .load()!");
         }
@@ -92,6 +98,8 @@ export class DiceThrower {
             const registerFunc = (): void => this.checkSolution(i);
 
             const mesh = this.createDie(options);
+
+            cb?.(options.die, mesh);
 
             promises.push(
                 new Promise((resolve, reject) => {
