@@ -15,6 +15,8 @@ import "@babylonjs/core/Loading";
 import "@babylonjs/core/Materials/standardMaterial";
 import "@babylonjs/core/Materials/PBR/pbrMaterial";
 import "@babylonjs/core/Physics/physicsEngineComponent";
+import { EngineOptions } from "@babylonjs/core/Engines/thinEngine";
+import { uuidv4 } from "./utils/uuid";
 
 export class DiceThrower {
     private loaded = false;
@@ -29,25 +31,30 @@ export class DiceThrower {
 
     private meshMap: Map<Dice, Mesh> = new Map();
 
-    private dice: {
-        die: Dice;
-        mesh: Mesh;
-        resolve: (value: number) => void;
-        reject: () => void;
-        registerFunc: () => void;
-        resolved: boolean;
-    }[] = [];
+    private dice: Map<
+        string,
+        {
+            die: Dice;
+            mesh: Mesh;
+            resolve: (value: number) => void;
+            reject: () => void;
+            registerFunc: () => void;
+            resolved: boolean;
+        }[]
+    > = new Map();
 
     constructor(options: {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
         freezeOnDecision?: boolean;
+        antialias?: boolean;
+        engineOptions?: EngineOptions;
     }) {
         if (options.scene) {
             this.scene = options.scene;
         } else if (options.canvas) {
-            const engine = new Engine(options.canvas);
+            const engine = new Engine(options.canvas, options.antialias, options.engineOptions);
             this.scene = new Scene(engine);
         } else {
             throw new Error("Expected either a scene or a canvas element");
@@ -90,32 +97,53 @@ export class DiceThrower {
      * An optional callback function can be provided to interact with the created Meshes just after their creation,
      * this will be called for each individual die thrown with the die type and
      * the root mesh containing both the Die mesh and the collider as children
+     *
+     * resetAllDice defaults to true and resets the entire dice field when throwing new dice.
+     * If set to false, it will not do this.
+     * If you provide a `key` it will clear previous dice associated with that key if they exist.
+     * When not providing a `key`, a random key will be generated.
      */
-    async throwDice(dice: DieOptions[], cb?: (die: Dice, mesh: Mesh) => void): Promise<number[]> {
+    async throwDice(
+        dice: DieOptions[],
+        extra?: {
+            cb?: (die: Dice, mesh: Mesh) => void;
+            key?: string;
+            resetAllDice?: boolean;
+        },
+    ): Promise<{ key: string; data: number[] }> {
         if (!this.loaded) {
             throw new Error("DiceThrower has not been properly loaded. first call .load()!");
         }
 
-        this.reset();
+        if (extra?.resetAllDice !== false) this.reset();
+        else if (extra?.key !== undefined) this.reset(extra.key);
+
+        const key = extra?.key ?? uuidv4();
+
+        if (!this.dice.has(key)) {
+            this.dice.set(key, []);
+        }
+        const keyData = this.dice.get(key)!;
 
         const promises: Promise<number>[] = [];
 
         for (const [i, options] of dice.entries()) {
-            const registerFunc = (): void => this.checkSolution(i);
+            const registerFunc = (): void => this.checkSolution(key, i);
 
             const mesh = this.createDie(options);
 
-            cb?.(options.die, mesh);
+            extra?.cb?.(options.die, mesh);
 
             promises.push(
                 new Promise((resolve, reject) => {
-                    this.dice.push({ die: options.die, mesh, registerFunc, resolve, reject, resolved: false });
+                    keyData.push({ die: options.die, mesh, registerFunc, resolve, reject, resolved: false });
                 }),
             );
             mesh.physicsImpostor!.registerAfterPhysicsStep(registerFunc);
+            await new Promise((r) => setTimeout(r, 50)); // wait 50ms to throw next dice
         }
 
-        return await Promise.all(promises);
+        return { key, data: await Promise.all(promises) };
     }
 
     private createDie(options: DieOptions): Mesh {
@@ -130,13 +158,18 @@ export class DiceThrower {
 
         const root = new Mesh("", this.scene);
 
-        const mesh = this.meshMap.get(options.die)!.clone();
+        const ogMesh = this.meshMap.get(options.die)!;
+        const mesh = ogMesh.clone();
         mesh.setEnabled(true);
         root.addChild(mesh);
         root.addChild(collider);
 
         // custom colours
-        if (options.color) (mesh.material as PBRMaterial).albedoColor = Color3.FromHexString(options.color);
+        if (options.color !== undefined) {
+            const newMat = (mesh.material as PBRMaterial).clone(options.color);
+            newMat.albedoColor = Color3.FromHexString(options.color);
+            mesh.material = newMat;
+        }
 
         const defaultLinearVelocity = new Vector3(Math.random() * 10, 0, Math.random() * 10);
         const defaultAngularVelocity = new Vector3(Math.random() * 4, 0, Math.random() * 4);
@@ -150,19 +183,23 @@ export class DiceThrower {
         return root;
     }
 
-    reset(): void {
-        for (const dieInfo of this.dice) {
-            if (!dieInfo.resolved) {
-                dieInfo.mesh.physicsImpostor!.unregisterAfterPhysicsStep(dieInfo.registerFunc);
-                dieInfo.reject();
+    reset(key?: string): void {
+        for (const [throwKey, throwData] of this.dice.entries()) {
+            if (key === undefined || key === throwKey) {
+                for (const dieInfo of throwData) {
+                    if (!dieInfo.resolved) {
+                        dieInfo.mesh.physicsImpostor!.unregisterAfterPhysicsStep(dieInfo.registerFunc);
+                        dieInfo.reject();
+                    }
+                    dieInfo.mesh.dispose();
+                }
+                this.dice.delete(throwKey);
             }
-            dieInfo.mesh.dispose();
         }
-        this.dice = [];
     }
 
-    private checkSolution(index: number): void {
-        const dieInfo = this.dice[index];
+    private checkSolution(key: string, index: number): void {
+        const dieInfo = this.dice.get(key)![index];
         const mesh = dieInfo.mesh;
         const impostor = mesh.physicsImpostor!;
 

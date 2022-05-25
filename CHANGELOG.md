@@ -4,12 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.5.0] - 2022-05-25
+
+### Added
+
+-   Multi dice throws.
+    -   You can pass `resetAllDice: false` as an option to the various throw APIs to not reset previous dice
+    -   Only dice with the same `key` will reset in this case
+    -   You can pass a specific `key` or let the API generate a unique key
+
+## [0.4.0] - 2022-04-07
+
 ### Added
 
 -   `Parser.fromString` now also accepts a single Options object if the same options apply to all dice
 -   `tresholds` option to DiceThrower constructor to override the default stop tresholds
 -   Optional callback parameter to throwDice and parser functions to modify the die mesh
 -   `freezeOnDecision` option to freeze the dice when the stop condition has been reached
+-   `engineOptions` option to the DiceThrower constructor to alter the babylonjs Engine creation
 
 ### Changed
 

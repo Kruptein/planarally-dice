@@ -9,7 +9,7 @@ export abstract class Parser<T> {
     constructor(private diceThrower: DiceThrower) {}
 
     protected abstract inputToOptions(input: string): DieOptions[];
-    protected abstract resultsToOutput(results: number[]): T;
+    protected abstract resultsToOutput(key: string, results: number[]): { key: string; data: T };
 
     /**
      * This function throws the provided dice based on string input,
@@ -22,13 +22,17 @@ export abstract class Parser<T> {
     async fromString(
         input: string,
         options?: SimpleOptions | undefined | (SimpleOptions | undefined)[],
-        cb?: (die: Dice, mesh: Mesh) => void,
-    ): Promise<T> {
+        extra?: {
+            cb?: (die: Dice, mesh: Mesh) => void;
+            key?: string;
+            resetAllDice?: boolean;
+        },
+    ): Promise<{ key: string; data: T }> {
         const converted = this.inputToOptions(input);
         for (const [i, c] of converted.entries()) {
             converted[i] = { ...c, ...(Array.isArray(options) ? options[i] : options) };
         }
-        return this.fromOptions(converted, cb);
+        return this.fromOptions(converted, extra);
     }
 
     /**
@@ -39,8 +43,15 @@ export abstract class Parser<T> {
      * this will be called for each individual die thrown with the die type and
      * the root mesh containing both the Die mesh and the collider as children
      */
-    async fromOptions(options: DieOptions[], cb?: (die: Dice, mesh: Mesh) => void): Promise<T> {
-        const results = await this.diceThrower.throwDice(options, cb);
-        return this.resultsToOutput(results);
+    async fromOptions(
+        options: DieOptions[],
+        extra?: {
+            cb?: (die: Dice, mesh: Mesh) => void;
+            key?: string;
+            resetAllDice?: boolean;
+        },
+    ): Promise<{ key: string; data: T }> {
+        const results = await this.diceThrower.throwDice(options, extra);
+        return this.resultsToOutput(results.key, results.data);
     }
 }

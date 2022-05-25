@@ -23,7 +23,7 @@ export class DndParser extends Parser<DndResult[]> {
         return options;
     }
 
-    protected resultsToOutput(results: number[]): DndResult[] {
+    protected resultsToOutput(key: string, results: number[]): { key: string; data: DndResult[] } {
         const dndResults: DndResult[] = [];
         let i = 0;
         for (const group of this.groups) {
@@ -46,7 +46,7 @@ export class DndParser extends Parser<DndResult[]> {
                 details: parts,
             });
         }
-        return dndResults;
+        return { key, data: dndResults };
     }
 
     protected parseGroup(groupInput: string): DieOptions[] {
