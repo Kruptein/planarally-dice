@@ -1,0 +1,28 @@
+[package]
+name = "render"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = { version = "0.11.2", features=["wayland"] }
+bevy_rapier3d = "0.22.0"
+gltf = "1.3.0"
+rand = "0.8.5"
+wasm-bindgen = "0.2.87"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "renderlib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "renderbin"
+path = "src/main.rs"
