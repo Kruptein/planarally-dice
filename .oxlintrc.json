@@ -1,0 +1,28 @@
+{
+    "env": {
+        "browser": true
+    },
+    "rules": {
+        "@typescript-eslint/consistent-indexed-object-style": [
+            "error",
+            {
+                "preferRecord": true
+            }
+        ],
+        "max-classes-per-file": "allow",
+        "max-dependencies": "allow",
+        "no-await-in-loop": "error",
+        "no-barrel-file": "error",
+        "no-negated-condition": "deny",
+        "no-ternary": "allow",
+        "no-undef": "allow",
+        "pedantic": "deny",
+        "sort-imports": [
+            "error",
+            {
+                "ignoreCase": true,
+                "ignoreDeclarationSort": true
+            }
+        ]
+    }
+}

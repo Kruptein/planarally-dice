@@ -1,5 +1,5 @@
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { type Mesh } from "@babylonjs/core/Meshes/mesh";
 import { BoxBuilder } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { PolyhedronBuilder } from "@babylonjs/core/Meshes/Builders/polyhedronBuilder";
 
@@ -85,8 +85,9 @@ export function stringToDice(dice: string): Dice {
         case "d100": {
             return Dice.D100;
         }
-        default:
+        default: {
             return Dice.D20;
+        }
     }
 }
 
@@ -96,41 +97,7 @@ const FACE_VALUE_MAPPING: Record<Dice, number[]> = {
     [Dice.D8]: [1, 7, 8, 2, 3, 5, 6, 4],
     [Dice.D10]: [5, 9, 1, 7, 3, 4, 10, 8, 2, 6, 5, 9, 1, 7, 3, 4, 10, 8, 2, 6],
     [Dice.D12]: [
-        1,
-        4,
-        2,
-        5,
-        6,
-        3,
-        12,
-        9,
-        11,
-        8,
-        7,
-        10,
-        1,
-        1,
-        4,
-        4,
-        2,
-        2,
-        5,
-        5,
-        6,
-        6,
-        3,
-        3,
-        12,
-        12,
-        9,
-        9,
-        11,
-        11,
-        8,
-        8,
-        7,
-        7,
-        10,
+        1, 4, 2, 5, 6, 3, 12, 9, 11, 8, 7, 10, 1, 1, 4, 4, 2, 2, 5, 5, 6, 6, 3, 3, 12, 12, 9, 9, 11, 11, 8, 8, 7, 7, 10,
         10,
     ],
     [Dice.D20]: [6, 9, 16, 3, 19, 11, 14, 8, 17, 1, 4, 20, 10, 7, 13, 18, 2, 12, 15, 5],

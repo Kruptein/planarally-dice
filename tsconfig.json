@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "target": "es2018",
+        "target": "es2023",
         "module": "esnext",
         "strict": true,
         "jsx": "preserve",
@@ -13,7 +13,7 @@
         "sourceMap": false,
         "baseUrl": ".",
         "outDir": "dist",
-        "lib": ["DOM", "ES2018", "DOM.Iterable", "ScriptHost", "ES2020.string"]
+        "lib": ["DOM", "ES2023", "DOM.Iterable", "ScriptHost"]
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

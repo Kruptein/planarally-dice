@@ -1,22 +1,22 @@
 import { Ray } from "@babylonjs/core/Culling/ray";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
-import { PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial";
+import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial";
 import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { AmmoJSPlugin } from "@babylonjs/core/Physics/Plugins/ammoJSPlugin";
 import { Scene } from "@babylonjs/core/scene";
-import { Dice, DieOptions } from "./types";
-import { getColliderFromDie, getValueFromFace, stringToDice } from "./utils/geom";
+import { Dice, type DieOptions } from "../types";
+import { getColliderFromDie, getValueFromFace, stringToDice } from "../utils/geom";
 
 // Load side-effects that are not by default loaded with the tree-shaking above
 import "@babylonjs/core/Loading";
 import "@babylonjs/core/Materials/standardMaterial";
 import "@babylonjs/core/Materials/PBR/pbrMaterial";
 import "@babylonjs/core/Physics/physicsEngineComponent";
-import { EngineOptions } from "@babylonjs/core/Engines/thinEngine";
-import { uuidv4 } from "./utils/uuid";
+import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine";
+import { uuidv4 } from "../utils/uuid";
 
 export class DiceThrower {
     private loaded = false;
@@ -140,6 +140,7 @@ export class DiceThrower {
                 }),
             );
             mesh.physicsImpostor!.registerAfterPhysicsStep(registerFunc);
+            // eslint-disable-next-line no-await-in-loop
             await new Promise((r) => setTimeout(r, 50)); // wait 50ms to throw next dice
         }
 
