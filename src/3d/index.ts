@@ -1,4 +1,5 @@
 import { Ray } from "@babylonjs/core/Culling/ray";
+// import { HavokPlugin } from "@babylonjs/core/Physics";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial";
@@ -7,6 +8,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { AmmoJSPlugin } from "@babylonjs/core/Physics/Plugins/ammoJSPlugin";
 import { Scene } from "@babylonjs/core/scene";
+// import HavokPhysics from "@babylonjs/havok";
 import { Dice, type DieOptions } from "../types";
 import { getColliderFromDie, getValueFromFace, stringToDice } from "../utils/geom";
 
@@ -15,6 +17,7 @@ import "@babylonjs/core/Loading";
 import "@babylonjs/core/Materials/standardMaterial";
 import "@babylonjs/core/Materials/PBR/pbrMaterial";
 import "@babylonjs/core/Physics/physicsEngineComponent";
+import "@babylonjs/core/Physics/v1/physicsEngineComponent";
 import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine";
 import { uuidv4 } from "../utils/uuid";
 
@@ -74,12 +77,15 @@ export class DiceThrower {
      *
      * For now you require to always pass the URL to a .babylon file.
      */
-    async load(meshUrl: string, ammo: any): Promise<void> {
+    async load(meshUrl: string, ammo: any, scene?: Scene): Promise<void> {
         const gravity = new Vector3(0, -10, 0);
+        // const havokInstance = await HavokPhysics();
+        // const hk = new HavokPlugin(true, havokInstance);
         const physicsPlugin = new AmmoJSPlugin(undefined, ammo);
         this.scene.enablePhysics(gravity, physicsPlugin);
+        // this.scene.enablePhysics(gravity, hk);
 
-        const asyncLoad = await SceneLoader.ImportMeshAsync("", meshUrl);
+        const asyncLoad = await SceneLoader.ImportMeshAsync("", meshUrl, undefined, scene);
         for (const mesh of asyncLoad.meshes) {
             mesh.setEnabled(false);
             mesh.isVisible = true;
