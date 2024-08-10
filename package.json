@@ -3,27 +3,39 @@
     "version": "0.5.0",
     "description": "3D dice rolling functionality for babylon.js.",
     "main": "dist/index.js",
+    "module": "dist/index.mjs",
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "rimraf dist/ && tsc",
-        "lint": "eslint"
+        "lint": "oxlint  -c .oxlintrc.json --ignore-pattern=examples --tsconfig ./tsconfig.json --disable-react-plugin --import-plugin -D correctness -D perf -D suspicious -D style -D nursery -A no-lonely-if -A no-continue"
     },
-    "peerDependencies": {
-        "ammo.js": "github:kripken/ammo.js"
+    "dependencies": {
+        "@babylonjs/core": "^7.20.1",
+        "@babylonjs/havok": "^1.3.8",
+        "@babylonjs/inspector": "^7.20.1"
     },
     "devDependencies": {
-        "@babylonjs/core": "^4.2.0",
-        "@babylonjs/inspector": "^4.2.0",
-        "eslint": "^7.22.0",
-        "eslint-import-resolver-typescript": "^2.4.0",
-        "eslint-plugin-import": "^2.22.1",
-        "eslint-plugin-prettier": "^3.3.1",
-        "prettier": "^2.2.1",
-        "rimraf": "^3.0.2",
-        "typescript": "^4.2.3"
+        "oxlint": "^0.7.0",
+        "prettier": "^3.3.3",
+        "rimraf": "^6.0.1",
+        "typescript": "^5.5.4"
+    },
+    "exports": {
+        "./core": {
+            "types": "./dist/core/index.d.ts",
+            "default": "./dist/core/index.js"
+        },
+        "./3d": {
+            "types": "./dist/3d/index.d.ts",
+            "default": "./dist/3d/index.js"
+        },
+        "./systems/dx": {
+            "types": "./dist/systems/dx/index.d.ts",
+            "default": "./dist/systems/dx/index.js"
+        }
     },
     "files": [
-        "dist/**"
+        "dist"
     ],
     "bugs": {
         "url": "https://github.com/Kruptein/babylonjs-dice/issues"
@@ -37,7 +49,6 @@
         "PlanarAlly",
         "dice",
         "babylonjs",
-        "ammojs",
         "3D",
         "DnD"
     ]

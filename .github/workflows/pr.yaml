@@ -1,0 +1,10 @@
+on: pull_request
+name: PR
+jobs:
+    oxlint:
+        name: Lint JS
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - run: npm i
+            - run: npm run lint

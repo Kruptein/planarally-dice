@@ -2,7 +2,10 @@
 
 # A babylon.js dice roller
 
-This repository is home to 3d dice roller functionality for the babylon.js framework using ammo.js as physics simulation.
+This repository is home to 3d dice roller functionality for the babylon.js framework using havok as physics simulation.
+
+!! This readme & all examples are currently outdated (release 0.5) and the API has drastically changed in 0.6 !!
+As further API changes are expected on the short term, this page will be temporary locked to the older docs
 
 ## Usage
 
