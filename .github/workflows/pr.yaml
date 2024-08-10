@@ -6,4 +6,4 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            - run: npx --yes oxlint@0.6.1 --deny-warnings # change to the latest release
+            - run: npm run lint

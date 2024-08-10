@@ -7,8 +7,9 @@ export enum Status {
 
 export type WithStatus<P extends Part, S extends Status> = P & { status: S };
 
-// eslint-disable-next-line no-empty-interface
-export interface Part {}
+export interface Part<T = string | undefined> {
+    input: T;
+}
 
 export function hasStatus<P extends Part, S extends Status>(
     p: WithStatus<P, Status>,
@@ -17,20 +18,14 @@ export function hasStatus<P extends Part, S extends Status>(
     return p.status === status;
 }
 
-export interface DiceSystem<P extends Part> {
-    name: string;
+export interface DiceSystem<P extends Part, Q = {}> {
     collect(parts: WithStatus<P, Status.Resolved>[]): RollResult<P>;
     evaluate(part: WithStatus<P, Status.PendingEvaluation>): WithStatus<P, Status.PendingRoll | Status.Resolved>;
     parse(input: string): WithStatus<P, Status.PendingEvaluation | Status.PendingRoll | Status.Resolved>[];
-    roller: Roller<P>;
-}
-
-export interface Roller<P extends Part> {
-    roll(part: WithStatus<P, Status.PendingRoll>): Promise<WithStatus<P, Status.PendingEvaluation>>;
+    roll(part: WithStatus<P, Status.PendingRoll>, rollOptions?: Q): Promise<WithStatus<P, Status.PendingEvaluation>>;
 }
 
 export interface RollResult<P extends Part> {
-    endResult: string;
-    parts: P[];
-    description: string;
+    result: string;
+    parts: (P & { shortResult: string; longResult?: string })[];
 }

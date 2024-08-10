@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.6.0] - 2024-08-10
+
+This is a release that changes a lot to the API!
+The next minor release will likely do even more changes, by moving this repo to a monorepo.
+This will be done in order to offer a fully non-3D package as well as one with 3D features.
+
+### Changed
+
+-   Upgraded babylonjs from 4 to 7
+    -   This also changes the physics engine from ammo to havok
+-   Almost everything non-3d related has been rewritten
+-   Separate parts of the code are now exported on specific exports in the package.json
+
 ## [0.5.0] - 2022-05-25
 
 ### Added

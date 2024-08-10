@@ -1,4 +1,4 @@
-import { type Status, type WithStatus } from "../../core/types";
+import { Part, type Status, type WithStatus } from "../../core/types";
 
 export enum DxSegmentType {
     Die = 0,
@@ -21,7 +21,7 @@ export const DxConfig = {
     symbolOptions,
 };
 
-export interface DieSegment {
+export interface DieSegment extends Part {
     type: DxSegmentType.Die;
     die: (typeof addOptions)[number];
     amount: number;
@@ -31,13 +31,13 @@ export interface DieSegment {
 }
 
 type RolledDieOutput = number[];
-export type ResolvedDieOutput = { roll: number; status?: "kept" | "dropped" }[];
+export type ResolvedDieOutput = { roll: number; status?: "kept" | "dropped" | "overridden" }[];
 
-export interface OperatorSegment {
+export interface OperatorSegment extends Part<(typeof symbolOptions)[number]> {
     type: DxSegmentType.Operator;
-    value: (typeof symbolOptions)[number];
+    // value: (typeof symbolOptions)[number];
 }
-interface LiteralSegment {
+interface LiteralSegment extends Part {
     type: DxSegmentType.Literal;
     value: number;
 }

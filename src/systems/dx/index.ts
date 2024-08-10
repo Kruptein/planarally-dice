@@ -33,61 +33,72 @@ function randomInterval(min: number, max: number): number {
     return Math.random() * (max - min) + min;
 }
 
-export class DxRoller {
-    roll(
-        part: WithDxStatus<DxSegment, Status.PendingRoll>,
-    ): Promise<WithDxStatus<DieSegment, Status.PendingEvaluation>> {
-        if (part.type !== DxSegmentType.Die) {
-            throw new Error(`Received a part of an unexpected type (${part.type})`);
-        }
-        return Promise.resolve({
-            ...part,
-            status: Status.PendingEvaluation,
-            output: Array.from({ length: part.amount }, () =>
-                Math.round(randomInterval(1, Number.parseInt(part.die.slice(1), 10))),
-            ),
-        });
+export async function roll(
+    part: WithDxStatus<DxSegment, Status.PendingRoll>,
+): Promise<WithDxStatus<DieSegment, Status.PendingEvaluation>> {
+    if (part.type !== DxSegmentType.Die) {
+        throw new Error(`Received a part of an unexpected type (${part.type})`);
     }
+    return Promise.resolve({
+        ...part,
+        status: Status.PendingEvaluation,
+        output: Array.from({ length: part.amount }, () =>
+            Math.round(randomInterval(1, Number.parseInt(part.die.slice(1), 10))),
+        ),
+    });
 }
 
 function collect(parts: WithDxStatus<DxSegment, Status.Resolved>[]): RollResult<DxSegment> {
     let total = 0;
-    let opMode: OperatorSegment["value"] = "+";
-    let description = "";
+    let opMode: OperatorSegment["input"] = "+";
+
+    const partsWithResults: RollResult<DxSegment>["parts"] = [];
 
     for (const part of parts) {
-        if (description.length > 0) description += " ";
+        let shortResult = "";
+        let longResult = undefined;
 
         if (part.type === DxSegmentType.Literal) {
             total += part.value * (opMode === "+" ? 1 : -1);
-            description += part.value.toString();
+            shortResult += part.value.toString();
         } else if (part.type === DxSegmentType.Operator) {
-            opMode = part.value;
-            description += part.value.toString();
+            opMode = part.input;
+            shortResult += part.input.toString();
         } else if (part.type === DxSegmentType.Die) {
             let subSum = 0;
+            longResult = "";
             for (const result of part.output) {
-                if (part.operator === "keep") {
-                    if (result.status === "kept") subSum += result.roll;
+                if (longResult.length > 0) longResult += ",";
+                let syntaxWrap = "";
+
+                if (result.status === "overridden") {
+                    syntaxWrap = "~";
+                } else if (part.operator === "keep") {
+                    if (result.status === "kept") {
+                        subSum += result.roll;
+                        syntaxWrap = "*";
+                    }
                 } else if (part.operator === "drop") {
-                    if (result.status !== "dropped") subSum += result.roll;
+                    if (result.status !== "dropped") {
+                        subSum += result.roll;
+                        syntaxWrap = "~";
+                    }
                 } else {
                     subSum += result.roll;
                 }
-            }
-            total += subSum * (opMode === "+" ? 1 : -1);
 
-            description += subSum.toString();
-            if (part.output.length > 1) {
-                description += ` [${part.output.map((r) => r.roll).join(", ")}]`;
+                longResult += `${syntaxWrap}${result.roll}${syntaxWrap}`;
             }
+
+            shortResult += subSum.toString();
+            total += subSum * (opMode === "+" ? 1 : -1);
         }
+        partsWithResults.push({ ...part, shortResult, longResult });
     }
 
     return {
-        endResult: total.toString(),
-        parts,
-        description,
+        result: total.toString(),
+        parts: partsWithResults,
     };
 }
 
@@ -100,9 +111,11 @@ function evaluate(part: WithDxStatus<DxSegment, Status.PendingEvaluation>): With
 
     // First resolve all dice minima/maxima
     for (let result of part.output) {
-        if (part.operator === "min" && result < part.selectorValue!) result = part.selectorValue!;
-        if (part.operator === "max" && result > part.selectorValue!) result = part.selectorValue!;
-        rolls.push({ roll: result });
+        let newResult = result;
+        if (part.operator === "min" && result < part.selectorValue!) newResult = part.selectorValue!;
+        if (part.operator === "max" && result > part.selectorValue!) newResult = part.selectorValue!;
+        if (result !== newResult) rolls.push({ roll: result, status: "overridden" });
+        rolls.push({ roll: newResult });
     }
 
     // Then resolve all selectors
@@ -139,7 +152,7 @@ function parse(
                         |
                         (?:r[aor])
                     )
-                    (?<selector>[hl<>])?      // selectors
+                    (?<selector>[hl<>=])?      // selectors
                 )
                 |
                 (?<nselModifier>m[ai])        // modifiers that only work on literal values
@@ -151,17 +164,18 @@ function parse(
     )
     */
     const regex =
-        /(?:^|(?<op>[+-]))\s*(?:(?<dice>(?<numDice>\d+)d(?<diceSize>\d+))(?:(?:(?:(?<selMod>[kpe]|(?:r[aor]))(?<selector>[hl<>])?)|(?<nselMod>m[ai]))(?<selval>\d+))?|(?<fixed>\d+))/g;
+        /(?:^|(?<op>[+-]))\s*(?:(?<dice>(?<numDice>\d+)d(?<diceSize>\d+))(?:(?:(?:(?<selMod>[kpe]|(?:r[aor]))(?<selector>[hl<>=])?)|(?<nselMod>m[ai]))(?<selval>\d+))?|(?<fixed>\d+))/g;
     for (const part of input.matchAll(regex)) {
         if (part.groups?.op !== undefined) {
             data.push({
+                input: part.groups.op as OperatorSegment["input"],
                 type: DxSegmentType.Operator,
-                value: part.groups.op as OperatorSegment["value"],
                 status: Status.Resolved,
             });
         }
         if (part.groups?.fixed !== undefined) {
             data.push({
+                input: part.groups.fixed,
                 type: DxSegmentType.Literal,
                 value: Number.parseInt(part.groups.fixed, 10),
                 status: Status.Resolved,
@@ -186,13 +200,18 @@ function parse(
                 const s = part.groups.selector;
                 if (s === ">") selector = ">";
                 else if (s === "<") selector = "<";
+                else if (s === "=") selector = "=";
                 else if (s === "h") selector = "highest";
                 else if (s === "l") selector = "lowest";
             }
+
+            const die = `d${part.groups.diceSize}` as DieSegment["die"];
+            const amount = part.groups.numDice;
             data.push({
+                input: `${amount}${die}${part.groups?.selMod ?? ""}${part.groups?.selector ?? ""}${part.groups?.nselMod ?? ""}${part.groups?.selval ?? ""}`,
                 type: DxSegmentType.Die,
-                die: `d${part.groups.diceSize!}` as DieSegment["die"],
-                amount: Number.parseInt(part.groups.numDice!, 10),
+                die,
+                amount: Number.parseInt(amount, 10),
                 operator,
                 selector,
                 selectorValue: part.groups.selval !== undefined ? Number.parseInt(part.groups.selval, 10) : undefined,
@@ -206,7 +225,6 @@ function parse(
 export const DX: DiceSystem<DxSegment> = {
     collect,
     evaluate,
-    name: "Dx",
     parse,
-    roller: new DxRoller(),
+    roll,
 };
