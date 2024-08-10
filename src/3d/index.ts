@@ -1,2 +1,2 @@
 export { DiceThrower } from "./diceThrower";
-export * from "./options";
+export { type DieOptions } from "./options";

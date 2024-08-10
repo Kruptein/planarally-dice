@@ -1,4 +1,4 @@
-import { Part, type Status, type WithStatus } from "../../core/types";
+import { type Part, type Status, type WithStatus } from "../../core/types";
 
 export enum DxSegmentType {
     Die = 0,

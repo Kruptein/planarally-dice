@@ -7,7 +7,7 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "rimraf dist/ && tsc",
-        "lint": "oxlint  -c .oxlintrc.json --ignore-pattern=examples --tsconfig ./tsconfig.json --disable-react-plugin --import-plugin -D correctness -D perf -D suspicious -D style -D nursery -A no-lonely-if"
+        "lint": "oxlint  -c .oxlintrc.json --ignore-pattern=examples --tsconfig ./tsconfig.json --disable-react-plugin --import-plugin -D correctness -D perf -D suspicious -D style -D nursery -A no-lonely-if -A no-continue"
     },
     "dependencies": {
         "@babylonjs/core": "^7.20.1",

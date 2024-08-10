@@ -1,6 +1,6 @@
-import { DiceThrower, DieOptions } from "../../3d";
-import { DiceSystem, Status } from "../../core/types";
-import { DieSegment, DxSegment, DxSegmentType, WithDxStatus } from "./types";
+import type { DiceThrower, DieOptions } from "../../3d";
+import { type DiceSystem, Status } from "../../core/types";
+import { type DieSegment, type DxSegment, DxSegmentType, type WithDxStatus } from "./types";
 import { DX } from ".";
 
 async function roll(

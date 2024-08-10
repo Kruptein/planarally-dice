@@ -1,12 +1,19 @@
 import { Ray } from "@babylonjs/core/Culling/ray";
 import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core/Physics";
 import { Engine } from "@babylonjs/core/Engines/engine";
+import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial";
 import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
 import HavokPhysics from "@babylonjs/havok";
+
+import { rollParts } from "../core/roll";
+import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types";
+import { uuidv4 } from "../utils/uuid";
+
+import type { DieOptions } from "./options";
 
 // Load side-effects that are not by default loaded with the tree-shaking above
 import "@babylonjs/core/Loading";
@@ -14,11 +21,6 @@ import "@babylonjs/core/Materials/standardMaterial";
 import "@babylonjs/core/Materials/PBR/pbrMaterial";
 import "@babylonjs/core/Physics/physicsEngineComponent";
 import "@babylonjs/core/Physics/v1/physicsEngineComponent";
-import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine";
-import { uuidv4 } from "../utils/uuid";
-import { DieOptions } from "./options";
-import { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types";
-import { rollParts } from "../core/roll";
 
 interface ActiveRoll {
     mesh: Mesh;
@@ -143,7 +145,7 @@ export class DiceThrower {
                     for (const activeRoll of activeRolls) {
                         activeRoll.mesh.dispose();
                     }
-                }, 5_000);
+                }, 5000);
             }
         }
     }
