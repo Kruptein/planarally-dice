@@ -7,5 +7,6 @@ export interface DieOptions {
         position?: Vector3;
         linear?: Vector3;
         angular?: Vector3;
+        rotation?: Vector3;
     };
 }
