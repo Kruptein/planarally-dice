@@ -52,7 +52,7 @@ export class DiceThrower {
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
         freezeOnDecision?: boolean;
-        clearAfter: number;
+        clearAfter?: number;
         antialias?: boolean;
         engineOptions?: EngineOptions;
     }) {
