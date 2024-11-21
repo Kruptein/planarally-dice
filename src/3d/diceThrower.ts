@@ -40,6 +40,7 @@ export class DiceThrower {
     };
 
     freezeOnDecision = true;
+    clearAfter = 5000;
 
     private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
 
@@ -51,6 +52,7 @@ export class DiceThrower {
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
         freezeOnDecision?: boolean;
+        clearAfter: number;
         antialias?: boolean;
         engineOptions?: EngineOptions;
     }) {
@@ -67,6 +69,9 @@ export class DiceThrower {
         }
         if (options.freezeOnDecision) {
             this.freezeOnDecision = options.freezeOnDecision;
+        }
+        if (options.clearAfter) {
+            this.clearAfter = options.clearAfter;
         }
     }
 
@@ -139,13 +144,22 @@ export class DiceThrower {
                     allDone = false;
                 }
             }
-            if (allDone) {
+            if (allDone && this.clearAfter > 0) {
                 this.activeRolls.delete(key);
                 setTimeout(() => {
                     for (const activeRoll of activeRolls) {
                         activeRoll.mesh.dispose();
                     }
-                }, 5000);
+                }, this.clearAfter);
+            }
+        }
+    }
+
+    clear(): void {
+        for (const [key, activeRolls] of this.activeRolls.entries()) {
+            this.activeRolls.delete(key);
+            for(const activeRoll of activeRolls) {
+                activeRoll.mesh.dispose();
             }
         }
     }
