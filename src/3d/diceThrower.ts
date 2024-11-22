@@ -155,15 +155,6 @@ export class DiceThrower {
         }
     }
 
-    clear(): void {
-        for (const [key, activeRolls] of this.activeRolls.entries()) {
-            this.activeRolls.delete(key);
-            for(const activeRoll of activeRolls) {
-                activeRoll.mesh.dispose();
-            }
-        }
-    }
-
     async rollString<Q>(inputString: string, rollOptions?: Q): Promise<RollResult<Part>> {
         if (!this.activeDiceSystem) {
             throw new Error("No dice system loaded. Call .loadSystem() first!");
