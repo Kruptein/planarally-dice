@@ -228,6 +228,11 @@ export class DiceThrower {
         const vectors = options?.physics?.();
 
         mesh.position = vectors?.position ?? new Vector3(0, 10, 0);
+        mesh.rotation = vectors?.rotation ?? new Vector3(
+            Math.random() * 2 * Math.PI,
+            Math.random() * 2 * Math.PI,
+            Math.random() * 2 * Math.PI
+        );
         const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, { mass: this.physics.mass, friction: this.physics.friction, restitution: this.physics.restitution });
         agg.body.setLinearVelocity(vectors?.linear ?? defaultLinearVelocity);
         agg.body.setAngularVelocity(vectors?.angular ?? defaultAngularVelocity);
