@@ -5,7 +5,7 @@ import {
     DxSegmentType,
     type OperatorSegment,
     type ResolvedDieOutput,
-    RollOptions,
+    type RollOptions,
     type WithDxStatus,
 } from "./types";
 
