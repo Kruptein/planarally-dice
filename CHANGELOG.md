@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- Add ability to configure dice clear timeout
+    - Setting to a negative timeout disables automatic clearing
+
 ## [0.6.0] - 2024-08-10
 
 This is a release that changes a lot to the API!
