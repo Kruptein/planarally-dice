@@ -40,8 +40,8 @@ async function roll(
 
     return {
         ...part,
-        status: Status.PendingEvaluation,
         output,
+        status: Status.PendingEvaluation,
     };
 }
 

@@ -2,6 +2,13 @@
     "env": {
         "browser": true
     },
+    "categories": {
+        "correctness": "deny",
+        "perf": "deny",
+        "suspicious": "deny",
+        "style": "deny",
+        "nursery": "deny"
+    },
     "rules": {
         "@typescript-eslint/consistent-indexed-object-style": [
             "error",
@@ -13,6 +20,8 @@
         "max-dependencies": "allow",
         "no-await-in-loop": "error",
         "no-barrel-file": "error",
+        "no-continue": "allow",
+        "no-magic-numbers": "allow",
         "no-negated-condition": "deny",
         "no-ternary": "allow",
         "no-undef": "allow",
@@ -23,6 +32,7 @@
                 "ignoreCase": true,
                 "ignoreDeclarationSort": true
             }
-        ]
+        ],
+        "yoda": "allow"
     }
 }
