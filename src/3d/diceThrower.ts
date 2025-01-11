@@ -39,6 +39,11 @@ export class DiceThrower {
         linear: 0.1,
         angular: 0.075,
     };
+    physics = {
+        mass: 20,
+        friction: 0.5,
+        restitution: 0.3,
+    };
 
     freezeOnDecision = true;
     clearAfter = 5000;
@@ -52,6 +57,7 @@ export class DiceThrower {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
+        physics?: { mass: number; friction: number; restitution: number };
         freezeOnDecision?: boolean;
         clearAfter?: number;
         antialias?: boolean;
@@ -67,6 +73,9 @@ export class DiceThrower {
         }
         if (options.tresholds) {
             this.tresholds = options.tresholds;
+        }
+        if (options.physics) {
+            this.physics = options.physics;
         }
         if (options.freezeOnDecision) {
             this.freezeOnDecision = options.freezeOnDecision;
@@ -231,7 +240,7 @@ export class DiceThrower {
             Math.random() * 2 * Math.PI,
             Math.random() * 2 * Math.PI
         );
-        const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, { mass: 20 });
+        const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, { mass: this.physics.mass, friction: this.physics.friction, restitution: this.physics.restitution });
         agg.body.setLinearVelocity(vectors?.linear ?? defaultLinearVelocity);
         agg.body.setAngularVelocity(vectors?.angular ?? defaultAngularVelocity);
         return mesh;
