@@ -1,21 +1,42 @@
 import type { DiceThrower, DieOptions } from "../../3d";
 import { type DiceSystem, Status } from "../../core/types";
-import { type DieSegment, type DxSegment, DxSegmentType, type WithDxStatus } from "./types";
+import { type DieSegment, type DxSegment, DxSegmentType, type RollOptions, type WithDxStatus } from "./types";
 import { DX } from ".";
 
 async function roll(
     part: WithDxStatus<DxSegment, Status.PendingRoll>,
-    rollOptions: RollOptions,
+    rollOptions: RollOptions3d,
 ): Promise<WithDxStatus<DieSegment, Status.PendingEvaluation>> {
     if (part.type !== DxSegmentType.Die) {
         throw new Error(`Received a part of an unexpected type (${part.type})`);
     }
 
-    const results = await rollOptions.thrower.throwDice(
-        Array.from({ length: part.amount }, () => ({ name: part.die })),
-        rollOptions.dieDefaults,
-    );
-    const output = results?.faceIds.map((r) => FACE_VALUE_MAPPING[part.die]?.[r]) ?? [];
+    const handleD100 = part.die === Dice.D100;
+
+    // Prepare the list of dice to roll
+    // Splice in an extra D10 for every D100 if we're handling D100
+    const diceRollArray = Array.from({ length: part.amount * (handleD100 ? 2 : 1) }, (_, index) => ({
+        name: handleD100 && index % 2 !== 0 ? Dice.D10 : part.die,
+    }));
+
+    const { results } = await rollOptions.thrower.throwDice(diceRollArray, rollOptions.dieDefaults);
+
+    let output = results.map((r) => FACE_VALUE_MAPPING[r.dieName as DieSegment["die"]]?.[r.faceId]) ?? [];
+
+    // Combine D100 results into a single number
+    if (handleD100) {
+        output = output
+            .filter((_, index) => index % 2 === 0)
+            .map((_, index) => {
+                let tens = output[index];
+                let units = output[index + 1];
+                if (tens === 100) tens = 0;
+                if (units === 10) units = 0;
+                if (tens === 0 && units === 0) return rollOptions.d100Mode === 0 ? 0 : 100;
+
+                return tens + units;
+            });
+    }
 
     return {
         ...part,
@@ -51,12 +72,12 @@ const FACE_VALUE_MAPPING: Record<DieSegment["die"], number[]> = {
     [Dice.D100]: [50, 90, 10, 70, 30, 40, 100, 80, 20, 60, 50, 90, 10, 70, 30, 40, 100, 80, 20, 60],
 };
 
-interface RollOptions {
+interface RollOptions3d extends RollOptions {
     thrower: DiceThrower;
     dieDefaults?: Partial<DieOptions>;
 }
 
-export const DX3: DiceSystem<DxSegment, RollOptions> = {
+export const DX3: DiceSystem<DxSegment, RollOptions3d> = {
     ...DX,
     roll,
 };

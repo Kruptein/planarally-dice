@@ -30,6 +30,10 @@ export interface DieSegment extends Part {
     selectorValue?: number;
 }
 
+export interface RollOptions {
+    d100Mode: 0 | 100;
+}
+
 type RolledDieOutput = number[];
 export type ResolvedDieOutput = { roll: number; status?: "kept" | "dropped" | "overridden" }[];
 

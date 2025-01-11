@@ -4,8 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-- Add ability to configure dice clear timeout
-    - Setting to a negative timeout disables automatic clearing
+-   [3d] throwDice returns thrown dieName to handle mixed rolls
+-   [3d] Add ability to configure dice clear timeout
+    -   Setting to a negative timeout disables automatic clearing
+-   [System:Dx] Handle d100 rolls properly + support for either 0-99 or 1-100 mode
+    -   d100 rolls with 3d dice will now automatically roll a d100 and a d10 and accumulate the results into 1 number, this brings it in line with the 2d behaviour
 
 ## [0.6.0] - 2024-08-10
 

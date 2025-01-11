@@ -5,6 +5,7 @@ import {
     DxSegmentType,
     type OperatorSegment,
     type ResolvedDieOutput,
+    type RollOptions,
     type WithDxStatus,
 } from "./types";
 
@@ -35,6 +36,7 @@ function randomInterval(min: number, max: number): number {
 
 export async function roll(
     part: WithDxStatus<DxSegment, Status.PendingRoll>,
+    rollOptions: RollOptions,
 ): Promise<WithDxStatus<DieSegment, Status.PendingEvaluation>> {
     if (part.type !== DxSegmentType.Die) {
         throw new Error(`Received a part of an unexpected type (${part.type})`);
@@ -42,9 +44,11 @@ export async function roll(
     return Promise.resolve({
         ...part,
         status: Status.PendingEvaluation,
-        output: Array.from({ length: part.amount }, () =>
-            Math.round(randomInterval(1, Number.parseInt(part.die.slice(1), 10))),
-        ),
+        output: Array.from({ length: part.amount }, () => {
+            const result = Math.round(randomInterval(1, Number.parseInt(part.die.slice(1), 10)));
+            if (part.die === "d100" && result === 100 && rollOptions.d100Mode === 0) return 0;
+            return result;
+        }),
     });
 }
 
@@ -222,7 +226,7 @@ function parse(
     return data;
 }
 
-export const DX: DiceSystem<DxSegment> = {
+export const DX: DiceSystem<DxSegment, RollOptions> = {
     collect,
     evaluate,
     parse,
