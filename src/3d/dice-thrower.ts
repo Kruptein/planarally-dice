@@ -36,12 +36,12 @@ export class DiceThrower {
     scene: Scene;
 
     tresholds = {
-        linear: 0.1,
         angular: 0.075,
+        linear: 0.1,
     };
     physics = {
-        mass: 20,
         friction: 0.5,
+        mass: 20,
         restitution: 0.3,
     };
 
@@ -50,8 +50,8 @@ export class DiceThrower {
 
     private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
 
-    private meshMap: Map<string, Mesh> = new Map();
-    private activeRolls: Map<string, ActiveRoll[]> = new Map();
+    private meshMap = new Map<string, Mesh>();
+    private activeRolls = new Map<string, ActiveRoll[]>();
 
     constructor(options: {
         scene?: Scene;
@@ -146,7 +146,7 @@ export class DiceThrower {
                     const ray = new Ray(activeRoll.mesh.position, activeRoll.pickVector ?? new Vector3(0, 1, 0), 100);
                     const pickResult = this.scene.pickWithRay(ray);
                     if (pickResult?.hit) {
-                        activeRoll.resolve({ faceId: pickResult.faceId, dieName: activeRoll.dieName });
+                        activeRoll.resolve({ dieName: activeRoll.dieName, faceId: pickResult.faceId });
                     } else {
                         activeRoll.reject();
                     }
@@ -199,10 +199,10 @@ export class DiceThrower {
                 new Promise((resolve, reject) =>
                     keyRolls.push({
                         dieName: roll.name,
-                        mesh,
-                        resolve,
-                        reject,
                         done: false,
+                        mesh,
+                        reject,
+                        resolve,
                     }),
                 ),
             );
@@ -210,7 +210,7 @@ export class DiceThrower {
             await new Promise((r) => setTimeout(r, 50)); // wait 50ms to throw next die
         }
 
-        return { results: await Promise.all(promises), key };
+        return { key, results: await Promise.all(promises) };
     }
 
     private createDie(meshName: string, options?: Omit<DieOptions, "die">): Mesh {
@@ -235,12 +235,14 @@ export class DiceThrower {
         const vectors = options?.physics?.();
 
         mesh.position = vectors?.position ?? new Vector3(0, 10, 0);
-        mesh.rotation = vectors?.rotation ?? new Vector3(
-            Math.random() * 2 * Math.PI,
-            Math.random() * 2 * Math.PI,
-            Math.random() * 2 * Math.PI
-        );
-        const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, { mass: this.physics.mass, friction: this.physics.friction, restitution: this.physics.restitution });
+        mesh.rotation =
+            vectors?.rotation ??
+            new Vector3(Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI);
+        const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, {
+            friction: this.physics.friction,
+            mass: this.physics.mass,
+            restitution: this.physics.restitution,
+        });
         agg.body.setLinearVelocity(vectors?.linear ?? defaultLinearVelocity);
         agg.body.setAngularVelocity(vectors?.angular ?? defaultAngularVelocity);
         return mesh;
