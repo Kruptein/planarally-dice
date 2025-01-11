@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.7.0] - 2025-01-11
+
 -   [3d] throwDice returns thrown dieName to handle mixed rolls
 -   [3d] Add ability to configure dice clear timeout
     -   Setting to a negative timeout disables automatic clearing
