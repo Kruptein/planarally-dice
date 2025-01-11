@@ -23,8 +23,9 @@ import "@babylonjs/core/Physics/physicsEngineComponent";
 import "@babylonjs/core/Physics/v1/physicsEngineComponent";
 
 interface ActiveRoll {
+    dieName: string;
     mesh: Mesh;
-    resolve: (faceId: number) => void;
+    resolve: (value: { faceId: number; dieName: string }) => void;
     reject: () => void;
     pickVector?: Vector3;
     done: boolean;
@@ -35,22 +36,30 @@ export class DiceThrower {
     scene: Scene;
 
     tresholds = {
-        linear: 0.1,
         angular: 0.075,
+        linear: 0.1,
+    };
+    physics = {
+        friction: 0.5,
+        mass: 20,
+        restitution: 0.3,
     };
 
     freezeOnDecision = true;
+    clearAfter = 5000;
 
     private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
 
-    private meshMap: Map<string, Mesh> = new Map();
-    private activeRolls: Map<string, ActiveRoll[]> = new Map();
+    private meshMap = new Map<string, Mesh>();
+    private activeRolls = new Map<string, ActiveRoll[]>();
 
     constructor(options: {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
+        physics?: { mass: number; friction: number; restitution: number };
         freezeOnDecision?: boolean;
+        clearAfter?: number;
         antialias?: boolean;
         engineOptions?: EngineOptions;
     }) {
@@ -65,8 +74,14 @@ export class DiceThrower {
         if (options.tresholds) {
             this.tresholds = options.tresholds;
         }
+        if (options.physics) {
+            this.physics = options.physics;
+        }
         if (options.freezeOnDecision) {
             this.freezeOnDecision = options.freezeOnDecision;
+        }
+        if (options.clearAfter) {
+            this.clearAfter = options.clearAfter;
         }
     }
 
@@ -131,7 +146,7 @@ export class DiceThrower {
                     const ray = new Ray(activeRoll.mesh.position, activeRoll.pickVector ?? new Vector3(0, 1, 0), 100);
                     const pickResult = this.scene.pickWithRay(ray);
                     if (pickResult?.hit) {
-                        activeRoll.resolve(pickResult.faceId);
+                        activeRoll.resolve({ dieName: activeRoll.dieName, faceId: pickResult.faceId });
                     } else {
                         activeRoll.reject();
                     }
@@ -139,13 +154,13 @@ export class DiceThrower {
                     allDone = false;
                 }
             }
-            if (allDone) {
+            if (allDone && this.clearAfter > 0) {
                 this.activeRolls.delete(key);
                 setTimeout(() => {
                     for (const activeRoll of activeRolls) {
                         activeRoll.mesh.dispose();
                     }
-                }, 5000);
+                }, this.clearAfter);
             }
         }
     }
@@ -167,7 +182,7 @@ export class DiceThrower {
     async throwDice(
         rolls: { name: string; options?: Omit<DieOptions, "key"> }[],
         defaultOptions?: DieOptions,
-    ): Promise<{ faceIds: number[]; key: string }> {
+    ): Promise<{ results: { faceId: number; dieName: string }[]; key: string }> {
         if (!this.loaded) {
             throw new Error("Physics Engine has not been properly loaded. first call .load()!");
         }
@@ -176,17 +191,18 @@ export class DiceThrower {
         const keyRolls: ActiveRoll[] = [];
         this.activeRolls.set(key, keyRolls);
 
-        const promises: Promise<number>[] = [];
+        const promises: Promise<{ faceId: number; dieName: string }>[] = [];
 
         for (const roll of rolls) {
             const mesh = this.createDie(roll.name, roll.options ?? defaultOptions);
             promises.push(
                 new Promise((resolve, reject) =>
                     keyRolls.push({
-                        mesh,
-                        resolve,
-                        reject,
+                        dieName: roll.name,
                         done: false,
+                        mesh,
+                        reject,
+                        resolve,
                     }),
                 ),
             );
@@ -194,7 +210,7 @@ export class DiceThrower {
             await new Promise((r) => setTimeout(r, 50)); // wait 50ms to throw next die
         }
 
-        return { faceIds: await Promise.all(promises), key };
+        return { key, results: await Promise.all(promises) };
     }
 
     private createDie(meshName: string, options?: Omit<DieOptions, "die">): Mesh {
@@ -219,7 +235,14 @@ export class DiceThrower {
         const vectors = options?.physics?.();
 
         mesh.position = vectors?.position ?? new Vector3(0, 10, 0);
-        const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, { mass: 20 });
+        mesh.rotation =
+            vectors?.rotation ??
+            new Vector3(Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI);
+        const agg = new PhysicsAggregate(mesh, PhysicsShapeType.CONVEX_HULL, {
+            friction: this.physics.friction,
+            mass: this.physics.mass,
+            restitution: this.physics.restitution,
+        });
         agg.body.setLinearVelocity(vectors?.linear ?? defaultLinearVelocity);
         agg.body.setAngularVelocity(vectors?.angular ?? defaultAngularVelocity);
         return mesh;
