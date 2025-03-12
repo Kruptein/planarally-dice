@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+-   [System:Dx,3d] D100 handling was not correct when multiple d100s were rolled at once
+
 ## [0.7.0] - 2025-01-11
 
 -   [3d] throwDice returns thrown dieName to handle mixed rolls
