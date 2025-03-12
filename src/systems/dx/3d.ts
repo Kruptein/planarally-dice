@@ -28,8 +28,8 @@ async function roll(
         output = output
             .filter((_, index) => index % 2 === 0)
             .map((_, index) => {
-                let tens = output[index];
-                let units = output[index + 1];
+                let tens = output[2 * index];
+                let units = output[2 * index + 1];
                 if (tens === 100) tens = 0;
                 if (units === 10) units = 0;
                 if (tens === 0 && units === 0) return rollOptions.d100Mode === 0 ? 0 : 100;
