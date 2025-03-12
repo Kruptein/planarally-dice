@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.7.1] - 2025-03-12
+
 ### Fixed
 
 -   [System:Dx,3d] D100 handling was not correct when multiple d100s were rolled at once
