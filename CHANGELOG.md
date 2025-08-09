@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.8.0] - 2025-08-09
+
+Babylonjs engine is upgraded from v7 to v8.
+
 ### Changed
 
 -   [3d] The raycast to check the hit is now stricter and explicitly only interacts with the mesh it's supposed to check
