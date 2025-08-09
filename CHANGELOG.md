@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+-   [System:Dx,3d] D4 was not using the correct pick vector, causing arbitrary results
+
 ## [0.7.1] - 2025-03-12
 
 ### Fixed

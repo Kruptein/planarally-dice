@@ -1,5 +1,8 @@
+import { Vector3 } from "@babylonjs/core";
+
 import type { DiceThrower, DieOptions } from "../../3d";
 import { type DiceSystem, Status } from "../../core/types";
+
 import { type DieSegment, type DxSegment, DxSegmentType, type RollOptions, type WithDxStatus } from "./types";
 import { DX } from ".";
 
@@ -17,6 +20,7 @@ async function roll(
     // Splice in an extra D10 for every D100 if we're handling D100
     const diceRollArray = Array.from({ length: part.amount * (handleD100 ? 2 : 1) }, (_, index) => ({
         name: handleD100 && index % 2 !== 0 ? Dice.D10 : part.die,
+        pickVector: part.die === Dice.D4 ? new Vector3(0, -1, 0) : undefined,
     }));
 
     const { results } = await rollOptions.thrower.throwDice(diceRollArray, rollOptions.dieDefaults);

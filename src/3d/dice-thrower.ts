@@ -180,7 +180,7 @@ export class DiceThrower {
     }
 
     async throwDice(
-        rolls: { name: string; options?: Omit<DieOptions, "key"> }[],
+        rolls: { name: string; options?: Omit<DieOptions, "key">; pickVector?: Vector3 }[],
         defaultOptions?: DieOptions,
     ): Promise<{ results: { faceId: number; dieName: string }[]; key: string }> {
         if (!this.loaded) {
@@ -203,6 +203,7 @@ export class DiceThrower {
                         mesh,
                         reject,
                         resolve,
+                        pickVector: roll.pickVector,
                     }),
                 ),
             );
