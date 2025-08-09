@@ -144,7 +144,7 @@ export class DiceThrower {
                     activeRoll.done = true;
 
                     const ray = new Ray(activeRoll.mesh.position, activeRoll.pickVector ?? new Vector3(0, 1, 0), 100);
-                    const pickResult = this.scene.pickWithRay(ray);
+                    const pickResult = this.scene.pickWithRay(ray, (mesh) => mesh === activeRoll.mesh);
                     if (pickResult?.hit) {
                         activeRoll.resolve({ dieName: activeRoll.dieName, faceId: pickResult.faceId });
                     } else {
