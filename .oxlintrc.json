@@ -6,7 +6,6 @@
         "correctness": "deny",
         "perf": "deny",
         "suspicious": "deny",
-        "style": "deny",
         "nursery": "deny"
     },
     "rules": {
