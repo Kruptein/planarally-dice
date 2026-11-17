@@ -17,6 +17,7 @@ Babylonjs engine is upgraded from v8 to v9.
 
 ### Fixed
 
+-   [System:Dx] 2D rolls were biased: the lowest and highest value of a die were half as likely as the others
 -   [System:Dx,3d] Importing the 3D dice system no longer pulls the entire babylon.js library into the bundle
 
 ## [0.8.0] - 2025-08-09

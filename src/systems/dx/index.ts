@@ -31,10 +31,6 @@ function selects(index: number, rolls: ResolvedDieOutput, part: DieSegment): boo
     return false;
 }
 
-function randomInterval(min: number, max: number): number {
-    return Math.random() * (max - min) + min;
-}
-
 export function roll(
     part: WithDxStatus<DxSegment, Status.PendingRoll>,
     rollOptions: RollOptions,
@@ -42,10 +38,11 @@ export function roll(
     if (part.type !== DxSegmentType.Die) {
         throw new Error(`Received a part of an unexpected type (${part.type})`);
     }
+    const sides = Number(part.die.slice(1));
     return Promise.resolve({
         ...part,
         output: Array.from({ length: part.amount }, () => {
-            const result = Math.round(randomInterval(1, Math.trunc(Number(part.die.slice(1)))));
+            const result = Math.floor(Math.random() * sides) + 1;
             if (part.die === "d100" && result === 100 && rollOptions.d100Mode === 0) return 0;
             return result;
         }),
