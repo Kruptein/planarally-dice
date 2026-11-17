@@ -62,6 +62,7 @@ Other constructor options:
 | `tresholds`    | `{ linear: 0.1, angular: 0.075 }`              | Velocities below which a die counts as stopped                                     |
 | `physics`      | `{ mass: 20, friction: 0.5, restitution: 0.3 }` | Physics properties of every die                                                    |
 | `clearAfter`   | `5000`                                         | Milliseconds after a roll before its dice are removed, negative to keep them around |
+| `timeout`      | `30000`                                        | Milliseconds before a roll whose dice haven't settled is rejected and its dice removed, `0` to disable |
 | `antialias`    | -                                              | Passed to the babylon `Engine` when a canvas is provided                           |
 | `engineOptions` | -                                             | Passed to the babylon `Engine` when a canvas is provided                           |
 
@@ -87,6 +88,10 @@ new PhysicsAggregate(ground, PhysicsShapeType.BOX, { mass: 0 });
 
 thrower.startRenderLoop();
 ```
+
+`startRenderLoop` is a shortcut for rendering the scene every frame. If you already run a render loop for the scene, there's no need to call it.
+
+`thrower.remove(key)` removes the dice of a roll and `thrower.removeAll()` removes all dice. Rolls that are still in progress are rejected.
 
 ### 3. Roll
 
