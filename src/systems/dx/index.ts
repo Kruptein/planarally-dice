@@ -1,4 +1,5 @@
-import { type DiceSystem, type RollResult, Status } from "../../core/types";
+import { type DiceSystem, type RollResult, Status } from "../../core/types.js";
+
 import {
     type DieSegment,
     type DxSegment,
@@ -7,9 +8,9 @@ import {
     type ResolvedDieOutput,
     type RollOptions,
     type WithDxStatus,
-} from "./types";
+} from "./types.js";
 
-export * from "./types";
+export * from "./types.js";
 
 function selects(index: number, rolls: ResolvedDieOutput, part: DieSegment): boolean {
     const value = rolls[index]!.roll;
@@ -19,12 +20,12 @@ function selects(index: number, rolls: ResolvedDieOutput, part: DieSegment): boo
     else if (part.selector === ">") return value > part.selectorValue;
     else if (part.selector === "highest")
         return [...rolls.entries()]
-            .sort((a, b) => b[1].roll - a[1].roll)
+            .toSorted((a, b) => b[1].roll - a[1].roll)
             .slice(0, part.selectorValue)
             .some(([i]) => i === index);
     else if (part.selector === "lowest")
         return [...rolls.entries()]
-            .sort((a, b) => a[1].roll - b[1].roll)
+            .toSorted((a, b) => a[1].roll - b[1].roll)
             .slice(0, part.selectorValue)
             .some(([i]) => i === index);
     return false;
@@ -34,7 +35,7 @@ function randomInterval(min: number, max: number): number {
     return Math.random() * (max - min) + min;
 }
 
-export async function roll(
+export function roll(
     part: WithDxStatus<DxSegment, Status.PendingRoll>,
     rollOptions: RollOptions,
 ): Promise<WithDxStatus<DieSegment, Status.PendingEvaluation>> {
@@ -44,7 +45,7 @@ export async function roll(
     return Promise.resolve({
         ...part,
         output: Array.from({ length: part.amount }, () => {
-            const result = Math.round(randomInterval(1, Number.parseInt(part.die.slice(1), 10)));
+            const result = Math.round(randomInterval(1, Math.trunc(Number(part.die.slice(1)))));
             if (part.die === "d100" && result === 100 && rollOptions.d100Mode === 0) return 0;
             return result;
         }),
@@ -60,7 +61,7 @@ function collect(parts: WithDxStatus<DxSegment, Status.Resolved>[]): RollResult<
 
     for (const part of parts) {
         let shortResult = "";
-        let longResult = undefined;
+        let longResult;
 
         if (part.type === DxSegmentType.Literal) {
             total += part.value * (opMode === "+" ? 1 : -1);
@@ -123,10 +124,10 @@ function evaluate(part: WithDxStatus<DxSegment, Status.PendingEvaluation>): With
     }
 
     // Then resolve all selectors
-    for (const [i, roll] of rolls.entries()) {
+    for (const [i, _roll] of rolls.entries()) {
         if (part.operator === "keep" || part.operator === "drop") {
             if (selects(i, rolls, part)) {
-                roll.status = part.operator === "keep" ? "kept" : "dropped";
+                _roll.status = part.operator === "keep" ? "kept" : "dropped";
             }
         }
     }
@@ -168,7 +169,7 @@ function parse(
     )
     */
     const regex =
-        /(?:^|(?<op>[+-]))\s*(?:(?<dice>(?<numDice>\d+)d(?<diceSize>\d+))(?:(?:(?:(?<selMod>[kpe]|(?:r[aor]))(?<selector>[hl<>=])?)|(?<nselMod>m[ai]))(?<selval>\d+))?|(?<fixed>\d+))/g;
+        /(?:^|(?<op>[+-]))\s*(?:(?<dice>(?<numDice>\d+)d(?<diceSize>\d+))(?:(?:(?:(?<selMod>[kpe]|(?:r[aor]))(?<selector>[hl<>=])?)|(?<nselMod>m[ai]))(?<selval>\d+))?|(?<fixed>\d+))/gu;
     for (const part of input.matchAll(regex)) {
         if (part.groups?.op !== undefined) {
             data.push({
@@ -182,7 +183,7 @@ function parse(
                 input: part.groups.fixed,
                 status: Status.Resolved,
                 type: DxSegmentType.Literal,
-                value: Number.parseInt(part.groups.fixed, 10),
+                value: Math.trunc(Number(part.groups.fixed)),
             });
         } else if (part.groups?.dice !== undefined) {
             let operator: DieSegment["operator"];
@@ -212,12 +213,12 @@ function parse(
             const die = `d${part.groups.diceSize}` as DieSegment["die"];
             const amount = part.groups.numDice;
             data.push({
-                amount: Number.parseInt(amount, 10),
+                amount: Math.trunc(Number(amount)),
                 die,
                 input: `${amount}${die}${part.groups?.selMod ?? ""}${part.groups?.selector ?? ""}${part.groups?.nselMod ?? ""}${part.groups?.selval ?? ""}`,
                 operator,
                 selector,
-                selectorValue: part.groups.selval === undefined ? undefined : Number.parseInt(part.groups.selval, 10),
+                selectorValue: part.groups.selval === undefined ? undefined : Math.trunc(Number(part.groups.selval)),
                 status: Status.PendingRoll,
                 type: DxSegmentType.Die,
             });

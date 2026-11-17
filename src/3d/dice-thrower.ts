@@ -1,26 +1,26 @@
-import { Ray } from "@babylonjs/core/Culling/ray";
-import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core/Physics";
-import { Engine } from "@babylonjs/core/Engines/engine";
-import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine";
-import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
-import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial";
-import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { Scene } from "@babylonjs/core/scene";
+import { Ray } from "@babylonjs/core/Culling/ray.js";
+import { Engine } from "@babylonjs/core/Engines/engine.js";
+import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine.js";
+import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader.js";
+import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial.js";
+import { Color3, Vector3 } from "@babylonjs/core/Maths/math.js";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh.js";
+import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core/Physics/index.js";
+import { Scene } from "@babylonjs/core/scene.js";
 import HavokPhysics from "@babylonjs/havok";
 
-import { rollParts } from "../core/roll";
-import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types";
-import { uuidv4 } from "../utils/uuid";
+import { rollParts } from "../core/roll.js";
+import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types.js";
+import { uuidv4 } from "../utils/uuid.js";
 
-import type { DieOptions } from "./options";
+import type { DieOptions } from "./options.js";
 
 // Load side-effects that are not by default loaded with the tree-shaking above
-import "@babylonjs/core/Loading";
-import "@babylonjs/core/Materials/standardMaterial";
-import "@babylonjs/core/Materials/PBR/pbrMaterial";
-import "@babylonjs/core/Physics/physicsEngineComponent";
-import "@babylonjs/core/Physics/v1/physicsEngineComponent";
+import "@babylonjs/core/Loading/index.js";
+import "@babylonjs/core/Materials/standardMaterial.js";
+import "@babylonjs/core/Materials/PBR/pbrMaterial.js";
+import "@babylonjs/core/Physics/physicsEngineComponent.js";
+import "@babylonjs/core/Physics/v1/physicsEngineComponent.js";
 
 interface ActiveRoll {
     dieName: string;
@@ -98,7 +98,7 @@ export class DiceThrower {
     }
 
     async loadMeshes(meshUrl: string, scene?: Scene): Promise<void> {
-        const asyncLoad = await SceneLoader.ImportMeshAsync("", meshUrl, undefined, scene);
+        const asyncLoad = await ImportMeshAsync(meshUrl, scene ?? this.scene);
         for (const mesh of asyncLoad.meshes) {
             mesh.setEnabled(false);
             mesh.isVisible = true;
@@ -106,7 +106,7 @@ export class DiceThrower {
         }
     }
 
-    async loadSystem(diceSystem: DiceSystem<Part, unknown>): Promise<void> {
+    loadSystem(diceSystem: DiceSystem<Part, unknown>): void {
         this.activeDiceSystem = diceSystem;
     }
 
