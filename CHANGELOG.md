@@ -18,6 +18,12 @@ Babylonjs engine is upgraded from v8 to v9.
 ### Fixed
 
 -   [System:Dx] 2D rolls were biased: the lowest and highest value of a die were half as likely as the others
+-   [3d] Rolls never finished when using your own render loop instead of `startRenderLoop`
+-   [3d] Rolls with many dice could stop being checked before all dice were thrown, never finishing
+-   [3d] Rolls never finished when a die didn't settle, they're now rejected after a configurable `timeout` (default 30s)
+-   [3d] `remove` and `removeAll` now reject rolls that are still in progress instead of leaving them pending
+-   [3d] `remove` and `removeAll` now also remove the dice of finished rolls that are waiting for `clearAfter`
+-   [3d] Failed rolls are rejected with an `Error` describing what went wrong
 -   [System:Dx,3d] Importing the 3D dice system no longer pulls the entire babylon.js library into the bundle
 
 ## [0.8.0] - 2025-08-09
