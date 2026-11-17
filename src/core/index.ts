@@ -1,3 +1,3 @@
-export { rollString, rollParts } from "./roll";
-export { SYSTEMS } from "./systems";
-export { type RollResult, type Part } from "./types";
+export { rollString, rollParts } from "./roll.js";
+export { SYSTEMS } from "./systems.js";
+export { type RollResult, type Part } from "./types.js";
