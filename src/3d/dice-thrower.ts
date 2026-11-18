@@ -63,7 +63,6 @@ export class DiceThrower {
         restitution: 0.3,
     };
 
-    freezeOnDecision = true;
     clearAfter = 5000;
     timeout = 30_000;
 
@@ -81,7 +80,6 @@ export class DiceThrower {
         tresholds?: { linear: number; angular: number };
         stableFrames?: number;
         physics?: { mass: number; friction: number; restitution: number };
-        freezeOnDecision?: boolean;
         clearAfter?: number;
         timeout?: number;
         antialias?: boolean;
@@ -103,9 +101,6 @@ export class DiceThrower {
         }
         if (options.physics) {
             this.physics = options.physics;
-        }
-        if (options.freezeOnDecision) {
-            this.freezeOnDecision = options.freezeOnDecision;
         }
         if (options.clearAfter) {
             this.clearAfter = options.clearAfter;
