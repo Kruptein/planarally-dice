@@ -58,7 +58,7 @@ async function roll(
 }
 
 // The below mapping corresponds to the meshes from all_dice.babylon + uv mapping
-// Currently these are still located in the main PA server folder,
+// Currently these are still located in the main PA server folder as well as the examples/meshes folder in this repo,
 // they should be moved to this lib when we move to the mod version
 
 export enum Dice {
