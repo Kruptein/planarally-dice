@@ -36,7 +36,7 @@ interface ThrownDie {
     reject: (reason: Error) => void;
     pickVector?: Vector3;
     done: boolean;
-    // Consecutive physics steps the die has been below the velocity tresholds
+    // Consecutive physics steps the die has been below the velocity thresholds
     stableFrames: number;
 }
 
@@ -53,11 +53,11 @@ export class DiceThrower {
     private loaded = false;
     scene: Scene;
 
-    tresholds = {
+    thresholds = {
         angular: 0.075,
         linear: 0.1,
     };
-    // A die can briefly be below the tresholds at the top of a bounce
+    // A die can briefly be below the thresholds at the top of a bounce
     stableFrames = 10;
     physics = {
         friction: 0.5,
@@ -77,7 +77,7 @@ export class DiceThrower {
     constructor(options: {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
-        tresholds?: { linear: number; angular: number };
+        thresholds?: { linear: number; angular: number };
         stableFrames?: number;
         physics?: { mass: number; friction: number; restitution: number };
         clearAfter?: number;
@@ -93,8 +93,8 @@ export class DiceThrower {
         } else {
             throw new Error("Expected either a scene or a canvas element");
         }
-        if (options.tresholds !== undefined) {
-            this.tresholds = options.tresholds;
+        if (options.thresholds !== undefined) {
+            this.thresholds = options.thresholds;
         }
         if (options.stableFrames !== undefined) {
             this.stableFrames = Math.max(1, options.stableFrames);
@@ -157,12 +157,12 @@ export class DiceThrower {
                 const velocity = physicsBody.getLinearVelocity();
 
                 const isStill =
-                    Math.abs(angularVelocity.x) < this.tresholds.angular &&
-                    Math.abs(angularVelocity.y) < this.tresholds.angular &&
-                    Math.abs(angularVelocity.z) < this.tresholds.angular &&
-                    Math.abs(velocity.x) < this.tresholds.linear &&
-                    Math.abs(velocity.y) < this.tresholds.linear &&
-                    Math.abs(velocity.z) < this.tresholds.linear;
+                    Math.abs(angularVelocity.x) < this.thresholds.angular &&
+                    Math.abs(angularVelocity.y) < this.thresholds.angular &&
+                    Math.abs(angularVelocity.z) < this.thresholds.angular &&
+                    Math.abs(velocity.x) < this.thresholds.linear &&
+                    Math.abs(velocity.y) < this.thresholds.linear &&
+                    Math.abs(velocity.z) < this.thresholds.linear;
 
                 die.stableFrames = isStill ? die.stableFrames + 1 : 0;
                 if (die.stableFrames < this.stableFrames) continue;
