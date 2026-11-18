@@ -1,7 +1,6 @@
 import type { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 
 export interface DieOptions {
-    size?: number;
     color?: string;
     physics?: () => {
         position?: Vector3;
