@@ -141,7 +141,7 @@ function parse(
 ): WithDxStatus<DxSegment, Status.PendingEvaluation | Status.PendingRoll | Status.Resolved>[] {
     const data: WithDxStatus<DxSegment, Status.PendingEvaluation | Status.PendingRoll | Status.Resolved>[] = [];
     /*
-    (?:^|(?<op>[+-]))\s*                      // Operator
+    \s*(?<op>[+-])?\s*                        // Operator, required for every part but the first
     (?:
         (?<dice>
             (?<numDice>\d+)d(?<diceSize>\d+)  // XdY
@@ -164,10 +164,24 @@ function parse(
         |
         (?<fixed>\d+)                         // literal value instead of XdY
     )
+    \s*
     */
     const regex =
-        /(?:^|(?<op>[+-]))\s*(?:(?<dice>(?<numDice>\d+)d(?<diceSize>\d+))(?:(?:(?:(?<selMod>[kpe]|(?:r[aor]))(?<selector>[hl<>=])?)|(?<nselMod>m[ai]))(?<selval>\d+))?|(?<fixed>\d+))/gu;
-    for (const part of input.matchAll(regex)) {
+        /\s*(?<op>[+-])?\s*(?:(?<dice>(?<numDice>\d+)d(?<diceSize>\d+))(?:(?:(?:(?<selMod>[kpe]|(?:r[aor]))(?<selector>[hl<>=])?)|(?<nselMod>m[ai]))(?<selval>\d+))?|(?<fixed>\d+))\s*/uy;
+
+    while (regex.lastIndex < input.length || data.length === 0) {
+        const start = regex.lastIndex;
+        const part = regex.exec(input);
+        const rest = input.slice(start).trim();
+        if (part === null) {
+            throw new Error(
+                rest.length === 0 ? `Nothing to roll in "${input}"` : `Could not parse "${rest}" in "${input}"`,
+            );
+        }
+        if (data.length > 0 && part.groups?.op === undefined) {
+            throw new Error(`Could not parse "${rest}" in "${input}", parts need to be joined with + or -`);
+        }
+
         if (part.groups?.op !== undefined) {
             data.push({
                 input: part.groups.op as OperatorSegment["input"],
@@ -188,10 +202,7 @@ function parse(
                 const m = part.groups.selMod;
                 if (m === "k") operator = "keep";
                 else if (m === "p") operator = "drop";
-                else if (m === "rr") operator = "inf";
-                else if (m === "ro") operator = "once";
-                else if (m === "ra") operator = "add";
-                else if (m === "e") operator = "explode";
+                else throw new Error(`${part.groups.dice}${m}: rerolling and exploding dice is not supported yet`);
             } else if (part.groups?.nselMod !== undefined) {
                 const m = part.groups.nselMod;
                 if (m === "mi") operator = "min";
@@ -205,6 +216,11 @@ function parse(
                 else if (s === "=") selector = "=";
                 else if (s === "h") selector = "highest";
                 else if (s === "l") selector = "lowest";
+            } else if (operator === "keep") selector = "highest";
+            else if (operator === "drop") selector = "lowest";
+
+            if (Number(part.groups.diceSize) < 1) {
+                throw new Error(`${part.groups.dice}: a die needs at least one side`);
             }
 
             const die = `d${part.groups.diceSize}` as DieSegment["die"];
