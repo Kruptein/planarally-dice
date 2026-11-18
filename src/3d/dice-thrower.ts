@@ -85,7 +85,7 @@ export class DiceThrower {
         antialias?: boolean;
         engineOptions?: EngineOptions;
     }) {
-        if (options.scene) {
+        if (options.scene !== undefined) {
             this.scene = options.scene;
         } else if (options.canvas) {
             const engine = new Engine(options.canvas, options.antialias, options.engineOptions);
@@ -93,16 +93,16 @@ export class DiceThrower {
         } else {
             throw new Error("Expected either a scene or a canvas element");
         }
-        if (options.tresholds) {
+        if (options.tresholds !== undefined) {
             this.tresholds = options.tresholds;
         }
         if (options.stableFrames !== undefined) {
             this.stableFrames = Math.max(1, options.stableFrames);
         }
-        if (options.physics) {
+        if (options.physics !== undefined) {
             this.physics = options.physics;
         }
-        if (options.clearAfter) {
+        if (options.clearAfter !== undefined) {
             this.clearAfter = options.clearAfter;
         }
         if (options.timeout !== undefined) {
