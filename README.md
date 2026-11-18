@@ -60,6 +60,7 @@ Other constructor options:
 | Option         | Default                                        | Description                                                                        |
 | -------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `tresholds`    | `{ linear: 0.1, angular: 0.075 }`              | Velocities below which a die counts as stopped                                     |
+| `stableFrames` | `10`                                           | Consecutive physics steps a die must stay below the `tresholds` before its face is read |
 | `physics`      | `{ mass: 20, friction: 0.5, restitution: 0.3 }` | Physics properties of every die                                                    |
 | `clearAfter`   | `5000`                                         | Milliseconds after a roll before its dice are removed, negative to keep them around |
 | `timeout`      | `30000`                                        | Milliseconds before a roll whose dice haven't settled is rejected and its dice removed, `0` to disable |

@@ -34,6 +34,8 @@ interface ThrownDie {
     reject: (reason: Error) => void;
     pickVector?: Vector3;
     done: boolean;
+    // Consecutive physics steps the die has been below the velocity tresholds
+    stableFrames: number;
 }
 
 interface ActiveRoll {
@@ -53,6 +55,8 @@ export class DiceThrower {
         angular: 0.075,
         linear: 0.1,
     };
+    // A die can briefly be below the tresholds at the top of a bounce
+    stableFrames = 10;
     physics = {
         friction: 0.5,
         mass: 20,
@@ -73,6 +77,7 @@ export class DiceThrower {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
         tresholds?: { linear: number; angular: number };
+        stableFrames?: number;
         physics?: { mass: number; friction: number; restitution: number };
         freezeOnDecision?: boolean;
         clearAfter?: number;
@@ -90,6 +95,9 @@ export class DiceThrower {
         }
         if (options.tresholds) {
             this.tresholds = options.tresholds;
+        }
+        if (options.stableFrames !== undefined) {
+            this.stableFrames = Math.max(1, options.stableFrames);
         }
         if (options.physics) {
             this.physics = options.physics;
@@ -155,7 +163,7 @@ export class DiceThrower {
                 const angularVelocity = physicsBody.getAngularVelocity();
                 const velocity = physicsBody.getLinearVelocity();
 
-                const isDone =
+                const isStill =
                     Math.abs(angularVelocity.x) < this.tresholds.angular &&
                     Math.abs(angularVelocity.y) < this.tresholds.angular &&
                     Math.abs(angularVelocity.z) < this.tresholds.angular &&
@@ -163,7 +171,8 @@ export class DiceThrower {
                     Math.abs(velocity.y) < this.tresholds.linear &&
                     Math.abs(velocity.z) < this.tresholds.linear;
 
-                if (!isDone) continue;
+                die.stableFrames = isStill ? die.stableFrames + 1 : 0;
+                if (die.stableFrames < this.stableFrames) continue;
 
                 die.done = true;
 
@@ -258,7 +267,15 @@ export class DiceThrower {
             }
 
             const promise = new Promise<DieResult>((resolve, reject) =>
-                roll.dice.push({ dieName: die.name, done: false, mesh, reject, resolve, pickVector: die.pickVector }),
+                roll.dice.push({
+                    dieName: die.name,
+                    done: false,
+                    stableFrames: 0,
+                    mesh,
+                    reject,
+                    resolve,
+                    pickVector: die.pickVector,
+                }),
             );
             // Dice can be rejected before Promise.all below attaches its handlers
             promise.catch(() => undefined);
