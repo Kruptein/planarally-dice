@@ -120,7 +120,7 @@ If you want to throw dice yourself without a dice system, `thrower.throwDice([{ 
 
 | Syntax     | Meaning                                                   | Example            |
 | ---------- | --------------------------------------------------------- | ------------------ |
-| `XdY`      | Roll X dice with Y sides (d4, d6, d8, d10, d12, d20, d100) | `3d6`              |
+| `XdY`      | Roll X dice with Y sides, 3D only supports d4, d6, d8, d10, d12, d20 and d100 | `3d6` |
 | `+` / `-`  | Add or subtract the next part                             | `1d20 + 1d4 - 1`   |
 | `N`        | A fixed number                                            | `5`                |
 | `khN`/`klN` | Keep the N highest/lowest dice                           | `2d20kh1`          |
@@ -128,6 +128,9 @@ If you want to throw dice yourself without a dice system, `thrower.throwDice([{ 
 | `k>N`/`k<N`/`k=N` | Keep dice above/below/equal to N                   | `5d10k>7`          |
 | `p>N`/`p<N`/`p=N` | Drop dice above/below/equal to N                   | `5d10p<3`          |
 | `miN`/`maN` | Raise every die to at least N, or lower to at most N     | `4d6mi2`, `2d8ma6` |
+`kN` keeps the N highest and `pN` drops the N lowest. Only one modifier per die is supported.
+
+Input that doesn't fit this syntax throws an error, for example dice without a 3D mesh in `DX3` (`1d7`), parts that aren't joined with `+` or `-` (`1d20 1d6`) or rerolling and exploding dice (`rr`, `ro`, `ra`, `e`), which aren't supported yet.
 
 `d100Mode` controls how a d100 result of 00 and 0 is reported: `100` reports it as 100, `0` as 0.
 

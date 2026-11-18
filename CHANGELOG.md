@@ -23,6 +23,8 @@ Babylonjs engine is upgraded from v8 to v9.
 -   [3d] Rolls never finished when a die didn't settle, they're now rejected after a configurable `timeout` (default 30s)
 -   [3d] `remove` and `removeAll` now reject rolls that are still in progress instead of leaving them pending
 -   [3d] `remove` and `removeAll` now also remove the dice of finished rolls that are waiting for `clearAfter`
+-   [System:Dx] `k` and `p` without `h`/`l` kept or dropped nothing, they now keep the highest and drop the lowest dice
+-   [System:Dx] Unsupported input was silently ignored, `parse` now throws instead: dice without a 3D mesh like `1d7` in `DX3` (they still work in 2D), parts not joined by `+`/`-`, unrecognised text, empty input and the `rr`, `ro`, `ra` and `e` modifiers, which were parsed but never evaluated
 -   [3d] A die could be judged as stopped at the top of a bounce, it now has to stay below the `tresholds` for `stableFrames` consecutive physics steps (default 10)
 -   [3d] Failed rolls are rejected with an `Error` describing what went wrong
 -   [System:Dx,3d] Importing the 3D dice system no longer pulls the entire babylon.js library into the bundle

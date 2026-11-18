@@ -3,7 +3,14 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 import type { DiceThrower, DieOptions } from "../../3d/index.js";
 import { type DiceSystem, Status } from "../../core/types.js";
 
-import { type DieSegment, type DxSegment, DxSegmentType, type RollOptions, type WithDxStatus } from "./types.js";
+import {
+    type DieSegment,
+    DxConfig,
+    type DxSegment,
+    DxSegmentType,
+    type RollOptions,
+    type WithDxStatus,
+} from "./types.js";
 
 import { DX } from "./index.js";
 
@@ -26,7 +33,7 @@ async function roll(
 
     const { results } = await rollOptions.thrower.throwDice(diceRollArray, rollOptions.dieDefaults);
 
-    let output = results.map((r) => FACE_VALUE_MAPPING[r.dieName as DieSegment["die"]]?.[r.faceId]) ?? [];
+    let output = results.map((r) => FACE_VALUE_MAPPING[r.dieName as Dice]?.[r.faceId]) ?? [];
 
     // Combine D100 results into a single number
     if (handleD100) {
@@ -64,7 +71,7 @@ export enum Dice {
     D100 = "d100",
 }
 
-const FACE_VALUE_MAPPING: Record<DieSegment["die"], number[]> = {
+const FACE_VALUE_MAPPING: Record<Dice, number[]> = {
     [Dice.D4]: [4, 3, 1, 2],
     [Dice.D6]: [6, 2, 1, 5, 3, 4, 6, 2, 1, 5, 3, 4],
     [Dice.D8]: [1, 7, 8, 2, 3, 5, 6, 4],
@@ -82,7 +89,18 @@ export interface RollOptions3d extends RollOptions {
     dieDefaults?: Partial<DieOptions>;
 }
 
+function parse(input: string): ReturnType<typeof DX.parse> {
+    const parts = DX.parse(input);
+    for (const part of parts) {
+        if (part.type === DxSegmentType.Die && !(DxConfig.addOptions as readonly string[]).includes(part.die)) {
+            throw new Error(`No 3D mesh for ${part.die}, expected one of ${DxConfig.addOptions.join(", ")}`);
+        }
+    }
+    return parts;
+}
+
 export const DX3: DiceSystem<DxSegment, RollOptions3d> = {
     ...DX,
+    parse,
     roll,
 };
