@@ -70,6 +70,8 @@ export class DiceThrower {
     private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
 
     private meshMap = new Map<string, Mesh>();
+    // Keyed by the source material's uniqueId and the colour, shared by all dice using that combination
+    private colouredMaterials = new Map<string, PBRMaterial>();
     private activeRolls = new Map<string, ActiveRoll>();
     private checkingSolutions = false;
 
@@ -297,9 +299,16 @@ export class DiceThrower {
 
         // custom colours
         if (options?.color !== undefined) {
-            const newMat = (mesh.material as PBRMaterial).clone(options.color);
-            newMat.albedoColor = Color3.FromHexString(options.color);
-            mesh.material = newMat;
+            const source = mesh.material as PBRMaterial;
+            const color = options.color.toLowerCase();
+            const key = `${source.uniqueId}:${color}`;
+            let material = this.colouredMaterials.get(key);
+            if (material === undefined) {
+                material = source.clone(`${source.name}-${color}`);
+                material.albedoColor = Color3.FromHexString(color);
+                this.colouredMaterials.set(key, material);
+            }
+            mesh.material = material;
         }
 
         const defaultLinearVelocity = new Vector3(Math.random() * 10, 0, Math.random() * 10);
