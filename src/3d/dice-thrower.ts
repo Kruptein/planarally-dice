@@ -9,8 +9,6 @@ import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core
 import { Scene } from "@babylonjs/core/scene.js";
 import HavokPhysics from "@babylonjs/havok";
 
-import { rollParts } from "../core/roll.js";
-import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types.js";
 import { uuidv4 } from "../utils/uuid.js";
 
 import type { DieOptions } from "./options.js";
@@ -69,8 +67,6 @@ export class DiceThrower {
 
     clearAfter = 5000;
     timeout = 30_000;
-
-    private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
 
     private meshMap = new Map<string, Mesh>();
     // Keyed by the source material's uniqueId and the colour, shared by all dice using that combination
@@ -138,10 +134,6 @@ export class DiceThrower {
             mesh.isVisible = true;
             this.meshMap.set(mesh.name, mesh as Mesh);
         }
-    }
-
-    loadSystem(diceSystem: DiceSystem<Part, unknown>): void {
-        this.activeDiceSystem = diceSystem;
     }
 
     startRenderLoop(): void {
@@ -215,20 +207,6 @@ export class DiceThrower {
             die.mesh.dispose();
         }
         this.activeRolls.delete(key);
-    }
-
-    async rollString<Q>(inputString: string, rollOptions?: Q): Promise<RollResult<Part>> {
-        if (!this.activeDiceSystem) {
-            throw new Error("No dice system loaded. Call .loadSystem() first!");
-        }
-        return await this.rollParts(this.activeDiceSystem.parse(inputString), rollOptions);
-    }
-
-    async rollParts<Q>(parts: WithStatus<Part, Status>[], rollOptions?: Q): Promise<RollResult<Part>> {
-        if (!this.activeDiceSystem) {
-            throw new Error("No dice system loaded. Call .loadSystem() first!");
-        }
-        return await rollParts(parts, this.activeDiceSystem, rollOptions);
     }
 
     async throwDice(

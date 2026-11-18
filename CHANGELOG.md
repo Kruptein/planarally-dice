@@ -15,6 +15,10 @@ Babylonjs engine is upgraded from v8 to v9.
 -   [core] `rollString` and `rollParts` infer the roll options type from the dice system and return results typed with the system's parts
 -   README and examples are rewritten for the current API, the webpack example is replaced by a Vite example
 
+### Removed
+
+-   [3d] `DiceThrower.loadSystem`, `DiceThrower.rollString` and `DiceThrower.rollParts`, use `rollString` and `rollParts` from `@planarally/dice/core` with the system and the thrower in its options instead
+
 ### Fixed
 
 -   [System:Dx] 2D rolls were biased: the lowest and highest value of a die were half as likely as the others
