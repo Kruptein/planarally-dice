@@ -22,6 +22,10 @@ import "@babylonjs/core/Materials/PBR/pbrMaterial.js";
 import "@babylonjs/core/Physics/physicsEngineComponent.js";
 import "@babylonjs/core/Physics/v1/physicsEngineComponent.js";
 
+function signed(max: number): number {
+    return (Math.random() * 2 - 1) * max;
+}
+
 interface DieResult {
     faceId: number;
     dieName: string;
@@ -306,8 +310,8 @@ export class DiceThrower {
             mesh.material = material;
         }
 
-        const defaultLinearVelocity = new Vector3(Math.random() * 10, 0, Math.random() * 10);
-        const defaultAngularVelocity = new Vector3(Math.random() * 4, 0, Math.random() * 4);
+        const defaultLinearVelocity = new Vector3(signed(10), 0, signed(10));
+        const defaultAngularVelocity = new Vector3(signed(4), 0, signed(4));
 
         const vectors = options?.physics?.();
 

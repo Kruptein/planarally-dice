@@ -26,6 +26,7 @@ Babylonjs engine is upgraded from v8 to v9.
 -   [System:Dx] `k` and `p` without `h`/`l` kept or dropped nothing, they now keep the highest and drop the lowest dice
 -   [System:Dx] Unsupported input was silently ignored, `parse` now throws instead: dice without a 3D mesh like `1d7` in `DX3` (they still work in 2D), parts not joined by `+`/`-`, unrecognised text, empty input and the `rr`, `ro`, `ra` and `e` modifiers, which were parsed but never evaluated
 -   [3d] A die could be judged as stopped at the top of a bounce, it now has to stay below the `tresholds` for `stableFrames` consecutive physics steps (default 10)
+-   [3d] Dice thrown without custom physics always flew towards the same corner and spun the same way
 -   [3d] Coloured dice leaked their cloned material and textures every roll, dice of the same type and colour now share one material
 -   [3d] Failed rolls are rejected with an `Error` describing what went wrong
 -   [System:Dx,3d] Importing the 3D dice system no longer pulls the entire babylon.js library into the bundle
