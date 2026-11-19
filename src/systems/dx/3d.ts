@@ -1,10 +1,11 @@
-import { Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector.js";
 
-import type { DiceThrower, DieOptions } from "../../3d";
-import { type DiceSystem, Status } from "../../core/types";
+import type { DiceThrower, DieOptions } from "../../3d/index.js";
+import { type DiceSystem, Status } from "../../core/types.js";
 
-import { type DieSegment, type DxSegment, DxSegmentType, type RollOptions, type WithDxStatus } from "./types";
-import { DX } from ".";
+import { type DieSegment, type DxSegment, DxSegmentType, type RollOptions, type WithDxStatus } from "./types.js";
+
+import { DX } from "./index.js";
 
 async function roll(
     part: WithDxStatus<DxSegment, Status.PendingRoll>,
@@ -76,7 +77,7 @@ const FACE_VALUE_MAPPING: Record<DieSegment["die"], number[]> = {
     [Dice.D100]: [50, 90, 10, 70, 30, 40, 100, 80, 20, 60, 50, 90, 10, 70, 30, 40, 100, 80, 20, 60],
 };
 
-interface RollOptions3d extends RollOptions {
+export interface RollOptions3d extends RollOptions {
     thrower: DiceThrower;
     dieDefaults?: Partial<DieOptions>;
 }

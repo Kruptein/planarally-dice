@@ -1,24 +1,27 @@
-import { type DiceSystem, hasStatus, type Part, type RollResult, Status, type WithStatus } from "./types";
+import { type DiceSystem, hasStatus, type Part, type RollResult, Status, type WithStatus } from "./types.js";
 
-export async function rollString<P extends Part, Q, DS extends DiceSystem<P, Q>>(
+export async function rollString<P extends Part, Q>(
     inputString: string,
-    diceSystem: DS,
-    rollOptions?: Q,
+    diceSystem: DiceSystem<P, Q>,
+    rollOptions?: NoInfer<Q>,
 ): Promise<RollResult<P>> {
     return await rollParts(diceSystem.parse(inputString), diceSystem, rollOptions);
 }
 
-export async function rollParts<P extends Part, Q, DS extends DiceSystem<P, Q>>(
+export async function rollParts<P extends Part, Q>(
     parts: WithStatus<P, Status>[],
-    diceSystem: DS,
-    rollOptions?: Q,
+    diceSystem: DiceSystem<P, Q>,
+    rollOptions?: NoInfer<Q>,
 ): Promise<RollResult<P>> {
     let allResolved = false;
 
     // AS LONG AS THERE ARE PENDING PARTS
     while (!allResolved) {
         // 1 COLLECT ALL PENDING ROLLS
-        const collectRolls: { index: number; promise: Promise<WithStatus<P, Status.PendingEvaluation>> }[] = [];
+        const collectRolls: {
+            index: number;
+            promise: Promise<WithStatus<P, Status.PendingEvaluation>>;
+        }[] = [];
 
         for (const [i, part] of parts.entries()) {
             if (hasStatus(part, Status.PendingRoll)) {

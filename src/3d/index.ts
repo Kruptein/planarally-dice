@@ -1,2 +1,2 @@
-export { DiceThrower } from "./dice-thrower";
-export { type DieOptions } from "./options";
+export { DiceThrower } from "./dice-thrower.js";
+export { type DieOptions } from "./options.js";

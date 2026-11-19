@@ -1,18 +1,17 @@
 {
-    "name": "babylonjs-dice-webpack",
+    "name": "planarally-dice-basic",
     "version": "1.0.0",
-    "description": "An example project with Webpack",
+    "description": "A minimal example of the @planarally/dice API",
     "private": true,
     "scripts": {
-        "build": "rimraf dist && tsc"
-    },
-    "devDependencies": {
-        "rimraf": "^3.0.2",
-        "ts-loader": "^8.0.18",
-        "typescript": "^4.2.3"
+        "typecheck": "tsc"
     },
     "dependencies": {
-        "@babylonjs/core": "^4.2.0",
-        "@planarally/dice": "^0.2.0"
+        "@babylonjs/core": "^9.37.0",
+        "@babylonjs/havok": "^1.3.14",
+        "@planarally/dice": "file:../.."
+    },
+    "devDependencies": {
+        "typescript": "^7.0.2"
     }
 }

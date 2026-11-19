@@ -1,5 +1,6 @@
 # Meshes
 
-This folder provides an example mesh set of typical dnd dice along with their uvs.
+A mesh set of typical D&D dice (d4, d6, d8, d10, d12, d20 and d100) along with their uv textures.
 
-These will for now need to be passed explicitly to the dice thrower to be loaded.
+Serve this folder and pass the URL of `dnd.babylon` to `DiceThrower.loadMeshes`. The textures in `uvs/` are loaded relative to it.
+The `DX3` dice system maps the faces of exactly these meshes to die values, other meshes will need their own mapping.
