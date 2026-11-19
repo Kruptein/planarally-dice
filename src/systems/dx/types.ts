@@ -23,7 +23,8 @@ export const DxConfig = {
 
 export interface DieSegment extends Part {
     type: DxSegmentType.Die;
-    die: (typeof addOptions)[number];
+    // 2D rolls support any number of sides, 3D rolls only support the dice in `addOptions`
+    die: `d${number}`;
     amount: number;
     operator?: operatorOptions;
     selector?: (typeof selectorOptions)[number];

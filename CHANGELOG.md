@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.9.1] - 2026-11-19
+
+A small error was made causing the 0.9.0 release to only include parts of the new changes. This is rectified in 0.9.1
+
 ## [0.9.0] - 2026-11-19
 
 Babylonjs engine is upgraded from v8 to v9.
@@ -12,10 +16,15 @@ Babylonjs engine is upgraded from v8 to v9.
 
 -   `@babylonjs/core` and `@babylonjs/havok` are now peer dependencies and must be installed by the consuming project
 -   `@babylonjs/inspector` is no longer a dependency
+-   [3d] The `tresholds` option and property of `DiceThrower` are renamed to `thresholds`
 -   [3d] `loadMeshes` now defaults to the DiceThrower's scene instead of the last created scene
 -   The package is now published as native ES modules (`"type": "module"`)
 -   [core] `rollString` and `rollParts` infer the roll options type from the dice system and return results typed with the system's parts
 -   README and examples are rewritten for the current API, the webpack example is replaced by a Vite example
+
+### Removed
+
+-   [3d] `DiceThrower.loadSystem`, `DiceThrower.rollString` and `DiceThrower.rollParts`, use `rollString` and `rollParts` from `@planarally/dice/core` with the system and the thrower in its options instead
 
 ### Fixed
 
@@ -25,6 +34,11 @@ Babylonjs engine is upgraded from v8 to v9.
 -   [3d] Rolls never finished when a die didn't settle, they're now rejected after a configurable `timeout` (default 30s)
 -   [3d] `remove` and `removeAll` now reject rolls that are still in progress instead of leaving them pending
 -   [3d] `remove` and `removeAll` now also remove the dice of finished rolls that are waiting for `clearAfter`
+-   [System:Dx] `k` and `p` without `h`/`l` kept or dropped nothing, they now keep the highest and drop the lowest dice
+-   [System:Dx] Unsupported input was silently ignored, `parse` now throws instead: dice without a 3D mesh like `1d7` in `DX3` (they still work in 2D), parts not joined by `+`/`-`, unrecognised text, empty input and the `rr`, `ro`, `ra` and `e` modifiers, which were parsed but never evaluated
+-   [3d] A die could be judged as stopped at the top of a bounce, it now has to stay below the `thresholds` for `stableFrames` consecutive physics steps (default 10)
+-   [3d] Dice thrown without custom physics always flew towards the same corner and spun the same way
+-   [3d] Coloured dice leaked their cloned material and textures every roll, dice of the same type and colour now share one material
 -   [3d] Failed rolls are rejected with an `Error` describing what went wrong
 -   [System:Dx,3d] Importing the 3D dice system no longer pulls the entire babylon.js library into the bundle
 

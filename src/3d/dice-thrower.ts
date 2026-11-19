@@ -9,8 +9,6 @@ import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core
 import { Scene } from "@babylonjs/core/scene.js";
 import HavokPhysics from "@babylonjs/havok";
 
-import { rollParts } from "../core/roll.js";
-import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types.js";
 import { uuidv4 } from "../utils/uuid.js";
 
 import type { DieOptions } from "./options.js";
@@ -21,6 +19,10 @@ import "@babylonjs/core/Materials/standardMaterial.js";
 import "@babylonjs/core/Materials/PBR/pbrMaterial.js";
 import "@babylonjs/core/Physics/physicsEngineComponent.js";
 import "@babylonjs/core/Physics/v1/physicsEngineComponent.js";
+
+function signed(max: number): number {
+    return (Math.random() * 2 - 1) * max;
+}
 
 interface DieResult {
     faceId: number;
@@ -34,6 +36,8 @@ interface ThrownDie {
     reject: (reason: Error) => void;
     pickVector?: Vector3;
     done: boolean;
+    // Consecutive physics steps the die has been below the velocity thresholds
+    stableFrames: number;
 }
 
 interface ActiveRoll {
@@ -49,38 +53,39 @@ export class DiceThrower {
     private loaded = false;
     scene: Scene;
 
-    tresholds = {
+    thresholds = {
         angular: 0.075,
         linear: 0.1,
     };
+    // A die can briefly be below the thresholds at the top of a bounce
+    stableFrames = 10;
     physics = {
         friction: 0.5,
         mass: 20,
         restitution: 0.3,
     };
 
-    freezeOnDecision = true;
     clearAfter = 5000;
     timeout = 30_000;
 
-    private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
-
     private meshMap = new Map<string, Mesh>();
+    // Keyed by the source material's uniqueId and the colour, shared by all dice using that combination
+    private colouredMaterials = new Map<string, PBRMaterial>();
     private activeRolls = new Map<string, ActiveRoll>();
     private checkingSolutions = false;
 
     constructor(options: {
         scene?: Scene;
         canvas?: HTMLCanvasElement;
-        tresholds?: { linear: number; angular: number };
+        thresholds?: { linear: number; angular: number };
+        stableFrames?: number;
         physics?: { mass: number; friction: number; restitution: number };
-        freezeOnDecision?: boolean;
         clearAfter?: number;
         timeout?: number;
         antialias?: boolean;
         engineOptions?: EngineOptions;
     }) {
-        if (options.scene) {
+        if (options.scene !== undefined) {
             this.scene = options.scene;
         } else if (options.canvas) {
             const engine = new Engine(options.canvas, options.antialias, options.engineOptions);
@@ -88,16 +93,16 @@ export class DiceThrower {
         } else {
             throw new Error("Expected either a scene or a canvas element");
         }
-        if (options.tresholds) {
-            this.tresholds = options.tresholds;
+        if (options.thresholds !== undefined) {
+            this.thresholds = options.thresholds;
         }
-        if (options.physics) {
+        if (options.stableFrames !== undefined) {
+            this.stableFrames = Math.max(1, options.stableFrames);
+        }
+        if (options.physics !== undefined) {
             this.physics = options.physics;
         }
-        if (options.freezeOnDecision) {
-            this.freezeOnDecision = options.freezeOnDecision;
-        }
-        if (options.clearAfter) {
+        if (options.clearAfter !== undefined) {
             this.clearAfter = options.clearAfter;
         }
         if (options.timeout !== undefined) {
@@ -131,10 +136,6 @@ export class DiceThrower {
         }
     }
 
-    loadSystem(diceSystem: DiceSystem<Part, unknown>): void {
-        this.activeDiceSystem = diceSystem;
-    }
-
     startRenderLoop(): void {
         this.scene.getEngine().runRenderLoop(() => this.scene.render());
     }
@@ -155,15 +156,16 @@ export class DiceThrower {
                 const angularVelocity = physicsBody.getAngularVelocity();
                 const velocity = physicsBody.getLinearVelocity();
 
-                const isDone =
-                    Math.abs(angularVelocity.x) < this.tresholds.angular &&
-                    Math.abs(angularVelocity.y) < this.tresholds.angular &&
-                    Math.abs(angularVelocity.z) < this.tresholds.angular &&
-                    Math.abs(velocity.x) < this.tresholds.linear &&
-                    Math.abs(velocity.y) < this.tresholds.linear &&
-                    Math.abs(velocity.z) < this.tresholds.linear;
+                const isStill =
+                    Math.abs(angularVelocity.x) < this.thresholds.angular &&
+                    Math.abs(angularVelocity.y) < this.thresholds.angular &&
+                    Math.abs(angularVelocity.z) < this.thresholds.angular &&
+                    Math.abs(velocity.x) < this.thresholds.linear &&
+                    Math.abs(velocity.y) < this.thresholds.linear &&
+                    Math.abs(velocity.z) < this.thresholds.linear;
 
-                if (!isDone) continue;
+                die.stableFrames = isStill ? die.stableFrames + 1 : 0;
+                if (die.stableFrames < this.stableFrames) continue;
 
                 die.done = true;
 
@@ -207,20 +209,6 @@ export class DiceThrower {
         this.activeRolls.delete(key);
     }
 
-    async rollString<Q>(inputString: string, rollOptions?: Q): Promise<RollResult<Part>> {
-        if (!this.activeDiceSystem) {
-            throw new Error("No dice system loaded. Call .loadSystem() first!");
-        }
-        return await this.rollParts(this.activeDiceSystem.parse(inputString), rollOptions);
-    }
-
-    async rollParts<Q>(parts: WithStatus<Part, Status>[], rollOptions?: Q): Promise<RollResult<Part>> {
-        if (!this.activeDiceSystem) {
-            throw new Error("No dice system loaded. Call .loadSystem() first!");
-        }
-        return await rollParts(parts, this.activeDiceSystem, rollOptions);
-    }
-
     async throwDice(
         rolls: { name: string; options?: Omit<DieOptions, "key">; pickVector?: Vector3 }[],
         defaultOptions?: DieOptions,
@@ -258,7 +246,15 @@ export class DiceThrower {
             }
 
             const promise = new Promise<DieResult>((resolve, reject) =>
-                roll.dice.push({ dieName: die.name, done: false, mesh, reject, resolve, pickVector: die.pickVector }),
+                roll.dice.push({
+                    dieName: die.name,
+                    done: false,
+                    stableFrames: 0,
+                    mesh,
+                    reject,
+                    resolve,
+                    pickVector: die.pickVector,
+                }),
             );
             // Dice can be rejected before Promise.all below attaches its handlers
             promise.catch(() => undefined);
@@ -280,13 +276,20 @@ export class DiceThrower {
 
         // custom colours
         if (options?.color !== undefined) {
-            const newMat = (mesh.material as PBRMaterial).clone(options.color);
-            newMat.albedoColor = Color3.FromHexString(options.color);
-            mesh.material = newMat;
+            const source = mesh.material as PBRMaterial;
+            const color = options.color.toLowerCase();
+            const key = `${source.uniqueId}:${color}`;
+            let material = this.colouredMaterials.get(key);
+            if (material === undefined) {
+                material = source.clone(`${source.name}-${color}`);
+                material.albedoColor = Color3.FromHexString(color);
+                this.colouredMaterials.set(key, material);
+            }
+            mesh.material = material;
         }
 
-        const defaultLinearVelocity = new Vector3(Math.random() * 10, 0, Math.random() * 10);
-        const defaultAngularVelocity = new Vector3(Math.random() * 4, 0, Math.random() * 4);
+        const defaultLinearVelocity = new Vector3(signed(10), 0, signed(10));
+        const defaultAngularVelocity = new Vector3(signed(4), 0, signed(4));
 
         const vectors = options?.physics?.();
 

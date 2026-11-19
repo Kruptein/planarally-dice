@@ -1,6 +1,6 @@
 {
     "name": "@planarally/dice",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "3D dice rolling functionality for babylon.js.",
     "keywords": [
         "3D",
