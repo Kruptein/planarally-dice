@@ -1,34 +1,48 @@
-import { Ray } from "@babylonjs/core/Culling/ray";
-import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core/Physics";
-import { Engine } from "@babylonjs/core/Engines/engine";
-import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine";
-import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
-import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial";
-import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { Scene } from "@babylonjs/core/scene";
+import { Ray } from "@babylonjs/core/Culling/ray.js";
+import { Engine } from "@babylonjs/core/Engines/engine.js";
+import { type EngineOptions } from "@babylonjs/core/Engines/thinEngine.js";
+import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader.js";
+import { type PBRMaterial } from "@babylonjs/core/Materials/PBR/pbrMaterial.js";
+import { Color3, Vector3 } from "@babylonjs/core/Maths/math.js";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh.js";
+import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core/Physics/index.js";
+import { Scene } from "@babylonjs/core/scene.js";
 import HavokPhysics from "@babylonjs/havok";
 
-import { rollParts } from "../core/roll";
-import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types";
-import { uuidv4 } from "../utils/uuid";
+import { rollParts } from "../core/roll.js";
+import type { DiceSystem, Part, RollResult, Status, WithStatus } from "../core/types.js";
+import { uuidv4 } from "../utils/uuid.js";
 
-import type { DieOptions } from "./options";
+import type { DieOptions } from "./options.js";
 
 // Load side-effects that are not by default loaded with the tree-shaking above
-import "@babylonjs/core/Loading";
-import "@babylonjs/core/Materials/standardMaterial";
-import "@babylonjs/core/Materials/PBR/pbrMaterial";
-import "@babylonjs/core/Physics/physicsEngineComponent";
-import "@babylonjs/core/Physics/v1/physicsEngineComponent";
+import "@babylonjs/core/Loading/index.js";
+import "@babylonjs/core/Materials/standardMaterial.js";
+import "@babylonjs/core/Materials/PBR/pbrMaterial.js";
+import "@babylonjs/core/Physics/physicsEngineComponent.js";
+import "@babylonjs/core/Physics/v1/physicsEngineComponent.js";
 
-interface ActiveRoll {
+interface DieResult {
+    faceId: number;
+    dieName: string;
+}
+
+interface ThrownDie {
     dieName: string;
     mesh: Mesh;
-    resolve: (value: { faceId: number; dieName: string }) => void;
-    reject: () => void;
+    resolve: (value: DieResult) => void;
+    reject: (reason: Error) => void;
     pickVector?: Vector3;
     done: boolean;
+}
+
+interface ActiveRoll {
+    dice: ThrownDie[];
+    // Dice are thrown one by one, a roll can only finish once all of them are in play
+    throwing: boolean;
+    finished: boolean;
+    // While rolling this is the timeout, once finished it removes the dice after `clearAfter`
+    timer?: ReturnType<typeof setTimeout>;
 }
 
 export class DiceThrower {
@@ -47,11 +61,13 @@ export class DiceThrower {
 
     freezeOnDecision = true;
     clearAfter = 5000;
+    timeout = 30_000;
 
     private activeDiceSystem: DiceSystem<Part, unknown> | undefined;
 
     private meshMap = new Map<string, Mesh>();
-    private activeRolls = new Map<string, ActiveRoll[]>();
+    private activeRolls = new Map<string, ActiveRoll>();
+    private checkingSolutions = false;
 
     constructor(options: {
         scene?: Scene;
@@ -60,6 +76,7 @@ export class DiceThrower {
         physics?: { mass: number; friction: number; restitution: number };
         freezeOnDecision?: boolean;
         clearAfter?: number;
+        timeout?: number;
         antialias?: boolean;
         engineOptions?: EngineOptions;
     }) {
@@ -83,6 +100,9 @@ export class DiceThrower {
         if (options.clearAfter) {
             this.clearAfter = options.clearAfter;
         }
+        if (options.timeout !== undefined) {
+            this.timeout = options.timeout;
+        }
     }
 
     /**
@@ -94,11 +114,16 @@ export class DiceThrower {
         const havokInstance = await HavokPhysics();
         const hk = new HavokPlugin(true, havokInstance);
         this.scene.enablePhysics(gravity ?? new Vector3(0, -10, 0), hk);
+        // The observable only exists once physics is enabled
+        if (!this.checkingSolutions) {
+            this.scene.onAfterPhysicsObservable.add(() => this.checkSolutions());
+            this.checkingSolutions = true;
+        }
         this.loaded = true;
     }
 
     async loadMeshes(meshUrl: string, scene?: Scene): Promise<void> {
-        const asyncLoad = await SceneLoader.ImportMeshAsync("", meshUrl, undefined, scene);
+        const asyncLoad = await ImportMeshAsync(meshUrl, scene ?? this.scene);
         for (const mesh of asyncLoad.meshes) {
             mesh.setEnabled(false);
             mesh.isVisible = true;
@@ -106,27 +131,25 @@ export class DiceThrower {
         }
     }
 
-    async loadSystem(diceSystem: DiceSystem<Part, unknown>): Promise<void> {
+    loadSystem(diceSystem: DiceSystem<Part, unknown>): void {
         this.activeDiceSystem = diceSystem;
     }
 
     startRenderLoop(): void {
         this.scene.getEngine().runRenderLoop(() => this.scene.render());
-        this.scene.onAfterPhysicsObservable.add(this.checkSolutions.bind(this));
     }
 
     private checkSolutions(): void {
-        for (const [key, activeRolls] of this.activeRolls.entries()) {
-            let allDone = true;
+        for (const [key, roll] of this.activeRolls.entries()) {
+            if (roll.finished) continue;
 
-            for (const activeRoll of activeRolls) {
-                if (activeRoll.done) continue;
+            for (const die of roll.dice) {
+                if (die.done) continue;
 
-                const physicsBody = activeRoll.mesh.physicsBody;
+                const physicsBody = die.mesh.physicsBody;
                 if (!physicsBody) {
-                    console.warn("No physics body found for mesh", activeRoll.mesh.name);
-                    this.activeRolls.delete(key);
-                    continue;
+                    this.discard(key, new Error(`No physics body found for die ${die.dieName}`));
+                    break;
                 }
 
                 const angularVelocity = physicsBody.getAngularVelocity();
@@ -140,29 +163,48 @@ export class DiceThrower {
                     Math.abs(velocity.y) < this.tresholds.linear &&
                     Math.abs(velocity.z) < this.tresholds.linear;
 
-                if (isDone) {
-                    activeRoll.done = true;
+                if (!isDone) continue;
 
-                    const ray = new Ray(activeRoll.mesh.position, activeRoll.pickVector ?? new Vector3(0, 1, 0), 100);
-                    const pickResult = this.scene.pickWithRay(ray, (mesh) => mesh === activeRoll.mesh);
-                    if (pickResult?.hit) {
-                        activeRoll.resolve({ dieName: activeRoll.dieName, faceId: pickResult.faceId });
-                    } else {
-                        activeRoll.reject();
-                    }
+                die.done = true;
+
+                const ray = new Ray(die.mesh.position, die.pickVector ?? new Vector3(0, 1, 0), 100);
+                const pickResult = this.scene.pickWithRay(ray, (mesh) => mesh === die.mesh);
+                if (pickResult?.hit) {
+                    die.resolve({ dieName: die.dieName, faceId: pickResult.faceId });
                 } else {
-                    allDone = false;
+                    die.reject(new Error(`Could not determine the result of die ${die.dieName}`));
                 }
             }
-            if (allDone && this.clearAfter > 0) {
-                this.activeRolls.delete(key);
-                setTimeout(() => {
-                    for (const activeRoll of activeRolls) {
-                        activeRoll.mesh.dispose();
-                    }
-                }, this.clearAfter);
+
+            if (!roll.finished && !roll.throwing && roll.dice.every((die) => die.done)) {
+                this.finish(key, roll);
             }
         }
+    }
+
+    private finish(key: string, roll: ActiveRoll): void {
+        roll.finished = true;
+        clearTimeout(roll.timer);
+        roll.timer = this.clearAfter > 0 ? setTimeout(() => this.remove(key), this.clearAfter) : undefined;
+    }
+
+    /**
+     * Removes the dice of a roll and rejects any of its dice that haven't settled yet
+     */
+    private discard(key: string, reason: Error): void {
+        const roll = this.activeRolls.get(key);
+        if (roll === undefined) return;
+
+        roll.finished = true;
+        clearTimeout(roll.timer);
+        for (const die of roll.dice) {
+            if (!die.done) {
+                die.done = true;
+                die.reject(reason);
+            }
+            die.mesh.dispose();
+        }
+        this.activeRolls.delete(key);
     }
 
     async rollString<Q>(inputString: string, rollOptions?: Q): Promise<RollResult<Part>> {
@@ -182,34 +224,47 @@ export class DiceThrower {
     async throwDice(
         rolls: { name: string; options?: Omit<DieOptions, "key">; pickVector?: Vector3 }[],
         defaultOptions?: DieOptions,
-    ): Promise<{ results: { faceId: number; dieName: string }[]; key: string }> {
+    ): Promise<{ results: DieResult[]; key: string }> {
         if (!this.loaded) {
-            throw new Error("Physics Engine has not been properly loaded. first call .load()!");
+            throw new Error("Physics Engine has not been properly loaded. first call .loadPhysics()!");
         }
 
         const key = uuidv4();
-        const keyRolls: ActiveRoll[] = [];
-        this.activeRolls.set(key, keyRolls);
-
-        const promises: Promise<{ faceId: number; dieName: string }>[] = [];
-
-        for (const roll of rolls) {
-            const mesh = this.createDie(roll.name, roll.options ?? defaultOptions);
-            promises.push(
-                new Promise((resolve, reject) =>
-                    keyRolls.push({
-                        dieName: roll.name,
-                        done: false,
-                        mesh,
-                        reject,
-                        resolve,
-                        pickVector: roll.pickVector,
-                    }),
-                ),
+        const roll: ActiveRoll = { dice: [], throwing: true, finished: false };
+        this.activeRolls.set(key, roll);
+        if (this.timeout > 0) {
+            roll.timer = setTimeout(
+                () => this.discard(key, new Error(`The dice did not settle within ${this.timeout}ms`)),
+                this.timeout,
             );
-            // eslint-disable-next-line no-await-in-loop
-            await new Promise((r) => setTimeout(r, 50)); // wait 50ms to throw next die
         }
+
+        const promises: Promise<DieResult>[] = [];
+
+        for (const [i, die] of rolls.entries()) {
+            if (i > 0) {
+                // eslint-disable-next-line no-await-in-loop
+                await new Promise((r) => setTimeout(r, 50)); // wait 50ms to throw next die
+                // The roll can time out or be removed while its dice are still being thrown
+                if (roll.finished) break;
+            }
+
+            let mesh: Mesh;
+            try {
+                mesh = this.createDie(die.name, die.options ?? defaultOptions);
+            } catch (error) {
+                this.discard(key, error as Error);
+                throw error;
+            }
+
+            const promise = new Promise<DieResult>((resolve, reject) =>
+                roll.dice.push({ dieName: die.name, done: false, mesh, reject, resolve, pickVector: die.pickVector }),
+            );
+            // Dice can be rejected before Promise.all below attaches its handlers
+            promise.catch(() => undefined);
+            promises.push(promise);
+        }
+        roll.throwing = false;
 
         return { key, results: await Promise.all(promises) };
     }
@@ -249,18 +304,14 @@ export class DiceThrower {
         return mesh;
     }
 
+    /**
+     * Removes the dice of a roll, a roll that is still in progress is rejected
+     */
     remove(key: string): void {
-        const activeRolls = this.activeRolls.get(key);
-        for (const activeRoll of activeRolls ?? []) {
-            activeRoll.mesh.dispose();
-            this.activeRolls.delete(key);
-        }
+        this.discard(key, new Error("The roll was removed before it finished"));
     }
 
     removeAll(): void {
-        for (const activeRolls of this.activeRolls.values()) {
-            for (const activeRoll of activeRolls) activeRoll.mesh.dispose();
-        }
-        this.activeRolls.clear();
+        for (const key of this.activeRolls.keys()) this.remove(key);
     }
 }

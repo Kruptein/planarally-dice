@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.9.0] - 2026-11-19
+
+Babylonjs engine is upgraded from v8 to v9.
+
+### Changed
+
+-   `@babylonjs/core` and `@babylonjs/havok` are now peer dependencies and must be installed by the consuming project
+-   `@babylonjs/inspector` is no longer a dependency
+-   [3d] `loadMeshes` now defaults to the DiceThrower's scene instead of the last created scene
+-   The package is now published as native ES modules (`"type": "module"`)
+-   [core] `rollString` and `rollParts` infer the roll options type from the dice system and return results typed with the system's parts
+-   README and examples are rewritten for the current API, the webpack example is replaced by a Vite example
+
+### Fixed
+
+-   [System:Dx] 2D rolls were biased: the lowest and highest value of a die were half as likely as the others
+-   [3d] Rolls never finished when using your own render loop instead of `startRenderLoop`
+-   [3d] Rolls with many dice could stop being checked before all dice were thrown, never finishing
+-   [3d] Rolls never finished when a die didn't settle, they're now rejected after a configurable `timeout` (default 30s)
+-   [3d] `remove` and `removeAll` now reject rolls that are still in progress instead of leaving them pending
+-   [3d] `remove` and `removeAll` now also remove the dice of finished rolls that are waiting for `clearAfter`
+-   [3d] Failed rolls are rejected with an `Error` describing what went wrong
+-   [System:Dx,3d] Importing the 3D dice system no longer pulls the entire babylon.js library into the bundle
+
 ## [0.8.0] - 2025-08-09
 
 Babylonjs engine is upgraded from v7 to v8.

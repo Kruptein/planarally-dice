@@ -9,13 +9,11 @@
         "nursery": "deny"
     },
     "rules": {
-        "@typescript-eslint/consistent-indexed-object-style": [
-            "error",
-            {
-                "preferRecord": true
-            }
-        ],
         "max-classes-per-file": "allow",
+        "eslint/max-lines-per-function": "allow",
+        "eslint/max-depth": "allow",
+        "unicorn/no-lonely-if": "allow",
+        "require-await": "deny",
         "max-dependencies": "allow",
         "no-await-in-loop": "error",
         "no-barrel-file": "error",
@@ -24,7 +22,6 @@
         "no-negated-condition": "deny",
         "no-ternary": "allow",
         "no-undef": "allow",
-        "pedantic": "deny",
         "sort-imports": [
             "error",
             {
