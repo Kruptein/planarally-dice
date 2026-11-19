@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.9.1] - 2026-11-19
+
+A small error was made causing the 0.9.0 release to only include parts of the new changes. This is rectified in 0.9.1
+
 ## [0.9.0] - 2026-11-19
 
 Babylonjs engine is upgraded from v8 to v9.
